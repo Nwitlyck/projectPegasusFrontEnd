@@ -34,6 +34,41 @@
             </div>
 
         </h:form>
+        
+        <h:form id="form"> 
+            <p:growl id="info" showDetail="true"/>
+        <p:dataTable 
+                var = "NonWorkingDayTO" 
+                value="#{daysOffController.listNonWorkingDayTO}" 
+                paginator="true" 
+                paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                paginatorPosition="bottom"
+                rows="5" 
+                rowsPerPageTemplate="5, 10, 20, 30, 40, 50" 
+                emptyMessage="There is no data">
+
+                <f:facet name="header">
+                    List Days Off To Review
+                </f:facet>
+
+            <p:column headerText="Id Colaborator" sortBy="#{NonWorkingDayTO.idColaborator}" filterBy="#{NonWorkingDayTO.idColaborator}" filterMatchMode="contains">
+                    <h:outputText value="#{NonWorkingDayTO.idColaborator}" />
+                </p:column>
+
+            <p:column headerText="Type" sortBy="#{NonWorkingDayTO.type}" filterBy="#{NonWorkingDayTO.type}" filterMatchMode="contains">
+                    <h:outputText value="#{NonWorkingDayTO.type}" />
+                </p:column>
+
+            <p:column headerText="Initial Date" sortBy="#{NonWorkingDayTO.initialDate}" filterBy="#{NonWorkingDayTO.initialDate}" filterMatchMode="contains">
+                    <h:outputText value="#{NonWorkingDayTO.initialDate}" />
+                </p:column>
+
+            <p:column headerText="Final Date" sortBy="#{NonWorkingDayTO.finalDate}" filterBy="#{NonWorkingDayTO.finalDate}" filterMatchMode="contains">
+                    <h:outputText value="#{NonWorkingDayTO.finalDate}" />
+                </p:column>
+
+            </p:dataTable>
+            </h:form> 
     </h:body>
 </html>
 

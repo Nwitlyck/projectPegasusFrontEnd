@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui" xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Pegasus</title>
+    </h:head>
+    <h:body>
+        <h:form id="menu">
+
+            <div class="card">
+                <p:menubar>
+                    <p:menuitem value="Main" outcome="Main" icon="pi pi-fw pi-home"/>
+
+                    <p:submenu label="Colaborator" icon="pi pi-fw pi-user">
+
+                        <p:menuitem value="Profile" outcome="Profile" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Manager" outcome="ColaboratorManager" icon="pi pi-fw pi-home" rendered="#{loginController.manager}"/>
+                        <p:menuitem value="Disabled" outcome="NonActiveColaborator" icon="pi pi-fw pi-home" rendered="#{loginController.admin}"/>
+
+                        <p:submenu label="Request Days Off" icon="pi pi-fw pi-user">
+                            <p:menuitem value="Vacations" outcome="Vacations" icon="pi pi-fw pi-user"/>
+                            <p:menuitem value="Time Off" outcome="TimeOff" icon="pi pi-fw pi-user"/>
+                        </p:submenu>
+
+                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Manage your documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
+                    </p:submenu>
+
+                    <f:facet name="options">
+                        <p:button value="Logout" outcome="index" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+                    </f:facet>
+                </p:menubar>
+            </div>
+
+        </h:form>
+        
+        <h:form id="form">
+
+            <p:growl id="messages" showDetail="true"/>
+
+            <p:commandButton value="Add document" 
+                             icon="pi pi-plus" 
+                             update="form manage-Doc-content" 
+                             oncomplete="PF('manageDocDialog').show()"
+                             styleClass="ui-button-success">
+                <p:resetInput target="form manage-Doc-content"/>
+            </p:commandButton>
+            
+            <p:dataTable 
+                var = "docTO" 
+                value="#{loginController.listDocsTO}" 
+                paginator="true" 
+                paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                paginatorPosition="bottom"
+                rows="5" 
+                rowsPerPageTemplate="5, 10, 20, 30, 40, 50" 
+                emptyMessage="There is no data">
+
+                <f:facet name="header">
+                    List Docs
+                </f:facet>
+
+                <p:column headerText="Id Colaborator" sortBy="#{docTO.colaboratorId}" filterBy="#{docTO.colaboratorId}" filterMatchMode="contains">
+                    <h:outputText value="#{docTO.colaboratorId}" />
+                </p:column>
+
+                <p:column headerText="Type" sortBy="#{docTO.type}" filterBy="#{docTO.type}" filterMatchMode="contains">
+                    <h:outputText value="#{docTO.type}" />
+                </p:column>
+
+                <p:column headerText="Doc location" sortBy="#{docTO.docLocation}" filterBy="#{docTO.docLocation}" filterMatchMode="contains">
+                    <h:outputText value="#{docTO.docLocation}" />
+                </p:column>
+                
+                <p:column>
+                    <p:commandButton 
+                        value="Delete" 
+                        class="ui-button-warning rounded-button"
+                        icon="pi pi-trash" 
+                        oncomplete="PF('deleteDocDialog').show()"
+                        styleClass="rounded-button ui-button-danger" 
+                        style="left:  .90rem"
+                        process="@this">
+                        <f:setPropertyActionListener value="#{docTO}" target="#{loginController.docTO}" />
+                    </p:commandButton>
+                </p:column>
+
+            </p:dataTable>
+
+            <p:dialog header="Documents Detail" showEffect="fade" modal="true"
+                      widgetVar="manageDocDialog" responsive="true" id="managerDocs">
+                <p:outputPanel id="manage-Doc-content" class="ui-fluid">
+
+                    <p:fileUpload mode="advanced"
+                                  multiple="false"
+                                  allowTypes="/(\.|\/)(pdf)$/"
+                                  invalidSizeMessage="The maximum size allowed is 100 KB"
+                                  invalidFileMessage="Only pdf are allowed"
+                                  update="messages"
+                                  listener="#{loginController.handleFileUpload}"/>
+
+                </p:outputPanel>
+            </p:dialog>
+            
+            <p:confirmDialog  
+                widgetVar="deleteDocDialog" 
+                showEffect="fade" 
+                width="300"
+                message="Are you sure?" 
+                header="Confirm" 
+                severity="warn">
+
+                <p:commandButton 
+                    value="Cancel" 
+                    icon="pi pi-times" 
+                    onclick="PF('deleteDocDialog').hide()"
+                    style="float: left"
+                    class="ui-button-secondary"/>
+
+                <p:commandButton 
+                    value="Delete" 
+                    icon="pi pi-times" 
+                    actionListener="#{loginController.deleteDoc}"
+                    update="form" 
+                    process="@this" />
+
+            </p:confirmDialog>
+        </h:form>
+    </h:body>
+</html>

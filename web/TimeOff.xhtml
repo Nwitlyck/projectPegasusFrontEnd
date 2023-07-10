@@ -7,7 +7,6 @@
     </h:head>
     <h:body>
         <h:form id="menu">
-            <p:growl id="info" showDetail="true"/>
 
             <div class="card">
                 <p:menubar>
@@ -23,6 +22,9 @@
                             <p:menuitem value="Vacations" outcome="Vacations" icon="pi pi-fw pi-user"/>
                             <p:menuitem value="Time Off" outcome="TimeOff" icon="pi pi-fw pi-user"/>
                         </p:submenu>
+
+                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Manage your documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
@@ -30,6 +32,67 @@
                     </f:facet>
                 </p:menubar>
             </div>
+
+        </h:form>
+        
+        <h:form id="form">
+            <p:growl id="info" showDetail="true"/>
+            
+            <p:commandButton value="Request time off" 
+                             icon="pi pi-plus" 
+                             actionListener="#{daysOffController.openNew}"
+                             update="form manage-TimeOff-content" 
+                             oncomplete="PF('manageTimeOffDialog').show()"
+                             styleClass="ui-button-success">
+                <p:resetInput target="form manage-TimeOff-content"/>
+            </p:commandButton>
+            
+            <p:dialog header="Time Off Detail" showEffect="fade" modal="true"
+                      widgetVar="manageTimeOffDialog" responsive="true" id="nonWorkingDay">
+                <p:outputPanel id="manage-TimeOff-content" class="ui-fluid">
+
+                    <div class="p-field">
+                        <p:outputLabel for="idColaborator"> Id Colaborator</p:outputLabel>
+                        <p:inputText id="idColaborator" value="#{daysOffController.selectedNonWorkingDayTO.idColaborator}"><p:keyFilter mask="num"/></p:inputText>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="initialDate">Initial Date</p:outputLabel>
+                        <p:calendar id="initialDate" value="#{daysOffController.calendarInitialDate}" />
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="finalDate">Final Date</p:outputLabel>
+                        <p:calendar id="finalDate" value="#{daysOffController.calendarFinalDate}"  />
+                    </div>
+
+                </p:outputPanel>
+
+                <f:facet name="footer">
+
+                    <p:commandButton 
+                        value="Cancel" 
+                        icon="pi pi-times" 
+                        onclick="PF('manageTimeOffDialog').hide()"
+                        style="float: left"
+                        class="ui-button-secondary"/>
+
+                    <p:commandButton 
+                        value="Update" 
+                        icon="pi pi-check" 
+                        rendered="#{!daysOffController.newNonWorkingDay}"
+                        actionListener="#{daysOffController.updateNonWorkingDayTO}"
+                        update="form manage-TimeOff-content" 
+                        process="manage-TimeOff-content @this" />
+
+                    <p:commandButton 
+                        value="Save" 
+                        icon="pi pi-check" 
+                        rendered="#{daysOffController.newNonWorkingDay}"
+                        actionListener="#{daysOffController.saveNonWorkingDayTOAsTimeOff()}"
+                        update="form manage-TimeOff-content" 
+                        process="manage-TimeOff-content @this" />
+
+                </f:facet>
+            </p:dialog>
 
         </h:form>
     </h:body>

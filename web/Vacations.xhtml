@@ -6,10 +6,7 @@
         <title>Pegasus</title>
     </h:head>
     <h:body>
-        
-        
         <h:form id="menu">
-            <p:growl id="info" showDetail="true"/>
 
             <div class="card">
                 <p:menubar>
@@ -25,6 +22,9 @@
                             <p:menuitem value="Vacations" outcome="Vacations" icon="pi pi-fw pi-user"/>
                             <p:menuitem value="Time Off" outcome="TimeOff" icon="pi pi-fw pi-user"/>
                         </p:submenu>
+
+                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Manage your documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
@@ -36,6 +36,7 @@
         </h:form>
         
         <h:form id="form">
+            <p:growl id="info" showDetail="true"/>
             
             <p:commandButton value="Request vacations" 
                              icon="pi pi-plus" 
