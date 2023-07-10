@@ -8,7 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.*;
 import javax.faces.context.*;
 import javax.faces.application.*;
-import java.sql.Date;
+import org.primefaces.PrimeFaces;
 
 /*
  * @author Pegasus
@@ -182,8 +182,9 @@ public class ColaboratorController implements Serializable {
 
     public boolean selectedColaboratorDateIsFuture() {
 
-        if (selectedColaboratorTO.getHireDate().after(new java.sql.Date(System.currentTimeMillis()))) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator hire date in the future"));
+        if (selectedColaboratorTO.getHireDate().after(new Date(System.currentTimeMillis()))) {
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator hire date in the future!");
+            PrimeFaces.current().dialog().showMessageDynamic(message);
             return true;
         }
 

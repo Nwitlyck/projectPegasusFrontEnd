@@ -6,6 +6,8 @@
         <title>Pegasus</title>
     </h:head>
     <h:body>
+        
+        
         <h:form id="menu">
             <p:growl id="info" showDetail="true"/>
 
@@ -29,24 +31,6 @@
                         <p:button value="Logout" outcome="index" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
                     </f:facet>
                 </p:menubar>
-            </div>
-
-        </h:form>
-        
-        <h:form id="form">
-            
-            <div>
-            
-                <p:panelGrid columns="2">
-                    Id: 
-                    <p:outputLabel value="#{loginController.logColaborator().id}"/>
-                    Access level: 
-                    <p:outputLabel value="#{loginController.logColaborator().acceslevel}"/>
-                    Hire date: 
-                    <p:outputLabel value="#{loginController.logColaborator().hireDate}"/>
-                    Password: 
-                    <p:outputLabel value="#{loginController.logColaborator().password}"/>
-                </p:panelGrid>
             </div>
 
         </h:form>
