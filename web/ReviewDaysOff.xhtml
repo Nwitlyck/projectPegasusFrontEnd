@@ -23,7 +23,7 @@
                             <p:menuitem value="Time Off" outcome="TimeOff" icon="pi pi-fw pi-user"/>
                         </p:submenu>
 
-                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
                         <p:menuitem value="Manage your documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
@@ -34,10 +34,10 @@
             </div>
 
         </h:form>
-        
+
         <h:form id="form"> 
             <p:growl id="info" showDetail="true"/>
-        <p:dataTable 
+            <p:dataTable 
                 var = "NonWorkingDayTO" 
                 value="#{daysOffController.listNonWorkingDayTO}" 
                 paginator="true" 
@@ -51,24 +51,96 @@
                     List Days Off To Review
                 </f:facet>
 
-            <p:column headerText="Id Colaborator" sortBy="#{NonWorkingDayTO.idColaborator}" filterBy="#{NonWorkingDayTO.idColaborator}" filterMatchMode="contains">
+                <p:column headerText="Id Colaborator" sortBy="#{NonWorkingDayTO.idColaborator}" filterBy="#{NonWorkingDayTO.idColaborator}" filterMatchMode="contains">
                     <h:outputText value="#{NonWorkingDayTO.idColaborator}" />
                 </p:column>
 
-            <p:column headerText="Type" sortBy="#{NonWorkingDayTO.type}" filterBy="#{NonWorkingDayTO.type}" filterMatchMode="contains">
+                <p:column headerText="Type" sortBy="#{NonWorkingDayTO.type}" filterBy="#{NonWorkingDayTO.type}" filterMatchMode="contains">
                     <h:outputText value="#{NonWorkingDayTO.type}" />
                 </p:column>
 
-            <p:column headerText="Initial Date" sortBy="#{NonWorkingDayTO.initialDate}" filterBy="#{NonWorkingDayTO.initialDate}" filterMatchMode="contains">
+                <p:column headerText="Initial Date" sortBy="#{NonWorkingDayTO.initialDate}" filterBy="#{NonWorkingDayTO.initialDate}" filterMatchMode="contains">
                     <h:outputText value="#{NonWorkingDayTO.initialDate}" />
                 </p:column>
 
-            <p:column headerText="Final Date" sortBy="#{NonWorkingDayTO.finalDate}" filterBy="#{NonWorkingDayTO.finalDate}" filterMatchMode="contains">
+                <p:column headerText="Final Date" sortBy="#{NonWorkingDayTO.finalDate}" filterBy="#{NonWorkingDayTO.finalDate}" filterMatchMode="contains">
                     <h:outputText value="#{NonWorkingDayTO.finalDate}" />
                 </p:column>
 
+                <p:column>
+                    <p:commandButton 
+                        class="ui-button-warning rounded-button"
+                        icon="pi pi-check" 
+                        oncomplete="PF('aproveDialog').show()" 
+                        styleClass="rounded-button" 
+                        style="left:  .90rem; background: green"
+                        process="@this" 
+                        update="form">
+                        <f:setPropertyActionListener value="#{NonWorkingDayTO}" target="#{daysOffController.selectedNonWorkingDayTO}"/>
+                    </p:commandButton>
+
+                    <p:commandButton   
+                        class="ui-button-warning rounded-button"
+                        icon="pi pi-times" 
+                        oncomplete="PF('disaproveDialog').show()"
+                        styleClass="rounded-button ui-button-danger" 
+                        style="left:  .90rem;"
+                        process="@this" 
+                        update="form"> 
+                        <f:setPropertyActionListener value="#{NonWorkingDayTO}" target="#{daysOffController.selectedNonWorkingDayTO}"/> 
+                    </p:commandButton>
+
+                </p:column>
             </p:dataTable>
-            </h:form> 
+
+            <p:confirmDialog  
+                widgetVar="aproveDialog" 
+                showEffect="fade" 
+                width="300"
+                message="Are you sure?" 
+                header="Confirm" 
+                severity="warn">
+
+                <p:commandButton 
+                    value="Cancel" 
+                    icon="pi pi-times" 
+                    onclick="PF('aproveDialog').hide()"
+                    style="float: left"
+                    class="ui-button-secondary"/>
+
+                <p:commandButton 
+                    value="Aprove" 
+                    icon="pi pi-check" 
+                    actionListener="#{daysOffController.approved}"
+                    update="form" 
+                    process="@this" />
+
+            </p:confirmDialog>
+
+            <p:confirmDialog  
+                widgetVar="disaproveDialog" 
+                showEffect="fade" 
+                width="300"
+                message="Are you sure?" 
+                header="Confirm" 
+                severity="warn">
+
+                <p:commandButton 
+                    value="Cancel" 
+                    icon="pi pi-times" 
+                    onclick="PF('disaproveDialog').hide()"
+                    style="float: left"
+                    class="ui-button-secondary"/>
+
+                <p:commandButton 
+                    value="Disaprove" 
+                    icon="pi pi-check" 
+                    actionListener="#{daysOffController.disapproved}"
+                    update="form" 
+                    process="@this" />
+
+            </p:confirmDialog>
+        </h:form> 
     </h:body>
 </html>
 

@@ -23,7 +23,7 @@
                             <p:menuitem value="Time Off" outcome="TimeOff" icon="pi pi-fw pi-user"/>
                         </p:submenu>
 
-                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
                         <p:menuitem value="Manage your documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
@@ -81,7 +81,8 @@
                         oncomplete="PF('deleteDocDialog').show()"
                         styleClass="rounded-button ui-button-danger" 
                         style="left:  .90rem"
-                        process="@this">
+                        process="@this" 
+                        update="form">
                         <f:setPropertyActionListener value="#{docTO}" target="#{loginController.docTO}" />
                     </p:commandButton>
                 </p:column>

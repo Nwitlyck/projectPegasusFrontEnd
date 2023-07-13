@@ -4,6 +4,7 @@ import edu.ulatina.serviceTO.ServiceColaboratorTO;
 import edu.ulatina.transfereObjects.ColaboratorTO;
 import java.io.Serializable;
 import java.util.*;
+import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.*;
 import javax.faces.context.*;
@@ -72,7 +73,9 @@ public class ColaboratorController implements Serializable {
     }
 
     public void setCalendarHireDate(java.util.Date hireDate) {
-        this.selectedColaboratorTO.setHireDate(new java.sql.Date(hireDate.getTime()));
+        if (hireDate != null) {
+            this.selectedColaboratorTO.setHireDate(new java.sql.Date(hireDate.getTime()));
+        }
     }
 
     public java.util.Date getCalendarFireDate() {
@@ -89,14 +92,14 @@ public class ColaboratorController implements Serializable {
     @PostConstruct
     public void initianizate() {
         serviceColaboratorTO = new ServiceColaboratorTO();
-        selectedColaboratorTO = new ColaboratorTO(0, 0, new java.sql.Date(System.currentTimeMillis()), null, "", 1);
+        selectedColaboratorTO = new ColaboratorTO();
         fillListColaboratorTO();
         sizeListColaboratorTO = listColaboratorTO.size() + "";
     }
 
     public void fillListColaboratorTO() {
         try {
-            listColaboratorTO = serviceColaboratorTO.select();
+            listColaboratorTO = serviceColaboratorTO.selectByState(1);
 
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to get data"));
@@ -105,10 +108,10 @@ public class ColaboratorController implements Serializable {
     }
 
     public void saveColaboratorTO() {
-        if(selectedColaboratorTONotNullOrEmipy()||selectedColaboratorDateIsFuture()){
+        if (verifyNull() || !IsAValidEmail() || !IsEmailNew() || selectedColaboratorDateIsFuture()) {
             return;
         }
-        
+
         try {
             serviceColaboratorTO.insert(this.selectedColaboratorTO);
         } catch (Exception e) {
@@ -118,8 +121,8 @@ public class ColaboratorController implements Serializable {
     }
 
     public void updateColaboratorTO() {
-        
-        if(selectedColaboratorTONotNullOrEmipy()||selectedColaboratorDateIsFuture()){
+
+        if (verifyNull() || !IsAValidEmail() || !IsEmailNew() || selectedColaboratorDateIsFuture()) {
             return;
         }
 
@@ -140,8 +143,8 @@ public class ColaboratorController implements Serializable {
         }
         initianizate();
     }
-    
-    public void deleteColaboratorTO(){
+
+    public void deleteColaboratorTO() {
         try {
             serviceColaboratorTO.delete(selectedColaboratorTO);
         } catch (Exception e) {
@@ -151,7 +154,8 @@ public class ColaboratorController implements Serializable {
     }
 
     public void openNew() {
-        selectedColaboratorTO = new ColaboratorTO(0, 0, new java.sql.Date(System.currentTimeMillis()), null, "", 1);
+        selectedColaboratorTO = new ColaboratorTO();
+        selectedColaboratorTO.setState(1);
         newColaboratorTO = true;
     }
 
@@ -159,9 +163,13 @@ public class ColaboratorController implements Serializable {
         newColaboratorTO = false;
     }
 
-    public boolean selectedColaboratorTONotNullOrEmipy() {
+    public boolean verifyNull() {
         if (selectedColaboratorTO == null) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null", "The Colaborator is null"));
+            return true;
+        }
+        if (selectedColaboratorTO.getEmail().isEmpty() || selectedColaboratorTO.getEmail() == null) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator email is not fill"));
             return true;
         }
         if (selectedColaboratorTO.getAcceslevel() < 0 || selectedColaboratorTO.getAcceslevel() > 2) {
@@ -179,12 +187,37 @@ public class ColaboratorController implements Serializable {
 
         return false;
     }
+ 
+    public boolean IsAValidEmail() {
+
+        String regexPattern = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@" + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
+
+        if (!Pattern.compile(regexPattern).matcher(this.selectedColaboratorTO.getEmail()).matches()) {
+
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Invalid", "The Email is invalid"));
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean IsEmailNew() {
+
+        try {
+            if (serviceColaboratorTO.selectByEmail(selectedColaboratorTO.getEmail()) != null && serviceColaboratorTO.selectByEmail(selectedColaboratorTO.getEmail()).getId() != selectedColaboratorTO.getId()) {
+                FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Invalid", "The email is repeded"));
+                return false;
+            }
+        } catch (Exception e) {
+        }
+
+        return true;
+    }
 
     public boolean selectedColaboratorDateIsFuture() {
 
         if (selectedColaboratorTO.getHireDate().after(new Date(System.currentTimeMillis()))) {
-            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator hire date in the future!");
-            PrimeFaces.current().dialog().showMessageDynamic(message);
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Invalid", "The Colaborator hire date in the future!"));
             return true;
         }
 

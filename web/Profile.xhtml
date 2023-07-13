@@ -23,7 +23,7 @@
                             <p:menuitem value="Time Off" outcome="TimeOff" icon="pi pi-fw pi-user"/>
                         </p:submenu>
 
-                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
                         <p:menuitem value="Manage your documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
@@ -41,14 +41,18 @@
             <div>
             
                 <p:panelGrid columns="2">
-                    Id: 
-                    <p:outputLabel value="#{loginController.logColaborator().id}"/>
+                    Manager Id: 
+                    <p:outputLabel value="#{loginController.logColaborator().managerId}"/>
+                    Email: 
+                    <p:outputLabel value="#{loginController.logColaborator().email}"/>
                     Access level: 
                     <p:outputLabel value="#{loginController.logColaborator().acceslevel}"/>
                     Hire date: 
                     <p:outputLabel value="#{loginController.logColaborator().hireDate}"/>
                     Password: 
                     <p:outputLabel value="#{loginController.logColaborator().password}"/>
+                    Vaction Days: 
+                    <p:outputLabel value="#{loginController.logColaborator().vacationDays}"/>
                 </p:panelGrid>
             </div>
 

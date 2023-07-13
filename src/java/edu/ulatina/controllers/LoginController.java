@@ -22,7 +22,7 @@ import org.primefaces.model.file.UploadedFile;
 @SessionScoped
 public class LoginController implements Serializable {
 
-    private int id;
+    private String email;
 
     private String password;
 
@@ -38,18 +38,13 @@ public class LoginController implements Serializable {
 
     public LoginController() {
     }
-
-    public LoginController(int id, String password) {
-        this.id = id;
-        this.password = password;
+    
+    public String getEmail(){
+        return email;
     }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+    
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
@@ -119,11 +114,7 @@ public class LoginController implements Serializable {
     }
 
     public void logIn() {
-        if (isIdEmpity()) {
-            return;
-        }
-
-        if (isPasswordEmpity()) {
+        if (verifyNulls()) {
             return;
         }
 
@@ -132,7 +123,9 @@ public class LoginController implements Serializable {
         }
 
         try {
-            this.logColaboratorTO = new ServiceColaboratorTO().selectByPk(new ColaboratorTO(id, 0, null, null, "", 0));
+            this.logColaboratorTO = new ServiceColaboratorTO().selectByEmail(this.email);
+            this.email = "";
+            this.password = "";
 
         } catch (Exception e) {
         }
@@ -140,15 +133,12 @@ public class LoginController implements Serializable {
         this.redirect("/faces/Main.xhtml");
     }
 
-    public boolean isIdEmpity() {
-        if (this.id == 0) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The id is empity or it's 0"));
+    public boolean verifyNulls() {
+        if (this.email.isEmpty() || this.email == null) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The email is empity"));
             return true;
         }
-        return false;
-    }
-
-    public boolean isPasswordEmpity() {
+        
         if (this.password.isEmpty() || this.password == null) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The password is empity"));
             return true;
@@ -159,21 +149,20 @@ public class LoginController implements Serializable {
     public boolean verifyUser() {
         ColaboratorTO colaboratorTO;
         try {
-            colaboratorTO = new ServiceColaboratorTO().selectByPk(new ColaboratorTO(id, 0, null, null, "", 0));
+            colaboratorTO = new ServiceColaboratorTO().selectByEmail(this.email);
 
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "Error at the time to connect with data base"));
-            e.printStackTrace();
             return false;
         }
 
         if (colaboratorTO == null) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The id or password aren't correct"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The email or password are incorrect"));
             return false;
         }
 
         if (!colaboratorTO.getPassword().equals(this.password)) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The id or password aren't correct"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The email or password are incorrect"));
             return false;
         }
 
@@ -185,8 +174,6 @@ public class LoginController implements Serializable {
         try {
 
             request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-
-            request.setAttribute("idLog", id);
             FacesContext.getCurrentInstance().getExternalContext().redirect(request.getContextPath() + ruta);
         } catch (Exception e) {
 

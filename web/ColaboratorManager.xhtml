@@ -23,7 +23,7 @@
                             <p:menuitem value="Time Off" outcome="TimeOff" icon="pi pi-fw pi-user"/>
                         </p:submenu>
 
-                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
                         <p:menuitem value="Manage your documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
@@ -34,8 +34,10 @@
             </div>
 
         </h:form>
+        
 
         <h:form id = "form" >
+            
             <p:growl id="info" showDetail="true"/>
 
             <p:commandButton value="Add Colaborator" 
@@ -60,9 +62,13 @@
                 <f:facet name="header">
                     List Colaborator
                 </f:facet>
+                
+                <p:column headerText="Manager Id" sortBy="#{colaboratorTO.managerId}" filterBy="#{colaboratorTO.managerId}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorTO.managerId}" />
+                </p:column>
 
-                <p:column headerText="Id" sortBy="#{colaboratorTO.id}" filterBy="#{colaboratorTO.id}" filterMatchMode="contains">
-                    <h:outputText value="#{colaboratorTO.id}" />
+                <p:column headerText="Email" sortBy="#{colaboratorTO.email}" filterBy="#{colaboratorTO.email}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorTO.email}" />
                 </p:column>
 
                 <p:column headerText="Acess level" sortBy="#{colaboratorTO.acceslevel}" filterBy="#{colaboratorTO.acceslevel}" filterMatchMode="contains">
@@ -73,12 +79,12 @@
                     <h:outputText value="#{colaboratorTO.hireDate}" />
                 </p:column>
 
-                <p:column headerText="Fire Date" sortBy="#{colaboratorTO.fireDate}" filterBy="#{colaboratorTO.fireDate}" filterMatchMode="contains">
-                    <h:outputText value="#{colaboratorTO.fireDate}" />
-                </p:column>
-
                 <p:column headerText="Password" sortBy="#{colaboratorTO.password}" filterBy="#{colaboratorTO.password}" filterMatchMode="contains">
                     <h:outputText value="#{colaboratorTO.password}" />
+                </p:column>
+                
+                <p:column headerText="Vacation Days" sortBy="#{colaboratorTO.vacationDays}" filterBy="#{colaboratorTO.vacationDays}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorTO.vacationDays}" />
                 </p:column>
 
                 <p:column >
@@ -88,7 +94,7 @@
                         update=":form:manage-Colaborator-content" 
                         oncomplete="PF('manageColaboratorDialog').show()"
                         styleClass="edit-button rounded-button ui-button-success" 
-                        style="background: gold; border: none"
+                        style="background: lightblue; border: none"
                         process="@this">
                         <f:setPropertyActionListener value="#{colaboratorTO}" target="#{colaboratorController.selectedColaboratorTO}" />
                         <p:resetInput target=":form:manage-Colaborator-content" />
@@ -98,7 +104,7 @@
                         icon="pi pi-trash" 
                         oncomplete="PF('desableColaboratorDialog').show()"
                         styleClass="edit-button rounded-button ui-button-success" 
-                        style="background: red; border: none; left:  .50rem"
+                        style="background: gray; border: none; left:  .50rem"
                         process="@this">
                         <f:setPropertyActionListener value="#{colaboratorTO}" target="#{colaboratorController.selectedColaboratorTO}" />
                     </p:commandButton>
@@ -108,7 +114,7 @@
                         icon="pi pi-trash" 
                         oncomplete="PF('deleteColaboratorDialog').show()"
                         styleClass="rounded-button ui-button-danger" 
-                        style="background: black; left:  .90rem"
+                        style="background: red; left:  .90rem"
                         process="@this">
                         <f:setPropertyActionListener value="#{colaboratorTO}" target="#{colaboratorController.selectedColaboratorTO}" />
                     </p:commandButton>
@@ -123,10 +129,10 @@
             <p:dialog header="Colaborator Detail" showEffect="fade" modal="true"
                       widgetVar="manageColaboratorDialog" responsive="true" id="managerColaborator">
                 <p:outputPanel id="manage-Colaborator-content" class="ui-fluid">
-
+                    
                     <div class="p-field">
-                        <p:outputLabel for="idf">Id</p:outputLabel>
-                        <p:inputText id="idf" value="#{colaboratorController.selectedColaboratorTO.id}" disabled="true"><p:keyFilter mask="num" /></p:inputText>
+                        <p:outputLabel for="email">E-Mail</p:outputLabel>
+                        <p:inputText id="email" value="#{colaboratorController.selectedColaboratorTO.email}"></p:inputText>
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="acceslevel">Acces level</p:outputLabel>
@@ -135,10 +141,6 @@
                     <div class="p-field">
                         <p:outputLabel for="hireDate">Hire Date</p:outputLabel>
                         <p:calendar id="hireDate" value="#{colaboratorController.calendarHireDate}" />
-                    </div>
-                    <div class="p-field">
-                        <p:outputLabel for="fireDate">Fire Date</p:outputLabel>
-                        <p:calendar id="fireDate" value="#{colaboratorController.calendarFireDate}"  />
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="password">Password</p:outputLabel>

@@ -9,9 +9,7 @@ import java.util.*;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.*;
 import javax.faces.context.*;
-import javax.faces.application.*;
-import javax.faces.event.ValueChangeEvent;
-import org.primefaces.PrimeFaces;
+import javax.faces.application.*; 
 
 /*
  * @author Nwitlyck
@@ -178,13 +176,14 @@ public class DaysOffController implements Serializable {
     public boolean colaboratorExist() {
 
         try {
-            if (new ServiceColaboratorTO().selectByPk(new ColaboratorTO(selectedNonWorkingDayTO.getIdColaborator(), 0, null, null, "", 0)) == null) {
+            ColaboratorTO colaboratorTO = new ColaboratorTO();
+            colaboratorTO.setId(selectedNonWorkingDayTO.getIdColaborator());
+            if (new ServiceColaboratorTO().selectByPk(colaboratorTO) == null) {
                 FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The colaborator wasnt found"));
                 return false;
             }
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Warning", "There was a problem with the connection unable to search for a colaborator data"));
-            e.printStackTrace();
             return false;
         }
 
@@ -197,12 +196,35 @@ public class DaysOffController implements Serializable {
             return false;
 
         }
-        if (selectedNonWorkingDayTO.getFinalDate().before(selectedNonWorkingDayTO.getInitialDate())) {
+        if(selectedNonWorkingDayTO.getFinalDate().before(selectedNonWorkingDayTO.getInitialDate())) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The final date is before initial date"));
             return false;
 
         }
         return true;
     }
+    
+    public void approved(){
+        selectedNonWorkingDayTO.setState(1);
+        selectedNonWorkingDayTO.setReview(1);
+        try {
+            serviceNonWorkingDayTO.update(selectedNonWorkingDayTO);
+            
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
+        }
+        fillListNonWorkingDayTO();
+    }
 
+     public void disapproved(){
+        selectedNonWorkingDayTO.setState(0);
+        selectedNonWorkingDayTO.setReview(1);
+        try {
+            serviceNonWorkingDayTO.update(selectedNonWorkingDayTO);
+            
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be disapproved"));
+        }
+        fillListNonWorkingDayTO();
+    }
 }
