@@ -28,7 +28,7 @@
                     </p:submenu>
 
                     <f:facet name="options">
-                        <p:button value="Logout" outcome="index" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+                        <p:commandButton value="Logout" actionListener="#{logOutController.logOut()}" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
                     </f:facet>
                 </p:menubar>
             </div>

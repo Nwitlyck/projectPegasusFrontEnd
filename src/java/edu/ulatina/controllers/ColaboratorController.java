@@ -9,7 +9,6 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.*;
 import javax.faces.context.*;
 import javax.faces.application.*;
-import org.primefaces.PrimeFaces;
 
 /*
  * @author Pegasus
@@ -27,6 +26,9 @@ public class ColaboratorController implements Serializable {
     private boolean newColaboratorTO;
 
     private String sizeListColaboratorTO;
+
+    @ManagedProperty(value = "#{loginController}")
+    private LoginController loginController;
 
     public List<ColaboratorTO> getListColaboratorTO() {
         return listColaboratorTO;
@@ -68,6 +70,14 @@ public class ColaboratorController implements Serializable {
         this.sizeListColaboratorTO = sizeListColaboratorTO;
     }
 
+    public LoginController getLoginController() {
+        return loginController;
+    }
+
+    public void setLoginController(LoginController loginController) {
+        this.loginController = loginController;
+    }
+
     public java.util.Date getCalendarHireDate() {
         return (java.util.Date) this.selectedColaboratorTO.getHireDate();
     }
@@ -99,10 +109,12 @@ public class ColaboratorController implements Serializable {
 
     public void fillListColaboratorTO() {
         try {
-            listColaboratorTO = serviceColaboratorTO.selectByState(1);
-
+            if (loginController.logColaborator().getAcceslevel() == 2) {
+                listColaboratorTO = serviceColaboratorTO.selectByState(1);
+            } else {
+                listColaboratorTO = serviceColaboratorTO.selectByManagerId(loginController.logColaborator().getId());
+            }
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to get data"));
             listColaboratorTO = new ArrayList<ColaboratorTO>();
         }
     }
@@ -187,7 +199,7 @@ public class ColaboratorController implements Serializable {
 
         return false;
     }
- 
+
     public boolean IsAValidEmail() {
 
         String regexPattern = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@" + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";

@@ -97,7 +97,7 @@ public class LoginController implements Serializable {
 
     //metods
     @PostConstruct
-    public void initianizate() {
+    public void initianizate() { 
         docTO = new DocTO();
         serviceDocsTO = new ServiceDocsTO();
         fillListDocsTO();
@@ -128,6 +128,7 @@ public class LoginController implements Serializable {
             this.password = "";
 
         } catch (Exception e) {
+            e.printStackTrace();
         }
 
         this.redirect("/faces/Main.xhtml");

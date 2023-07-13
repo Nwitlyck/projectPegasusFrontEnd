@@ -28,7 +28,7 @@
                     </p:submenu>
 
                     <f:facet name="options">
-                        <p:button value="Logout" outcome="index" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+                        <p:commandButton value="Logout" actionListener="#{logOutController.logOut()}" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
                     </f:facet>
                 </p:menubar>
             </div>
@@ -49,6 +49,8 @@
                 <p:resetInput target="form manage-Colaborator-content"/>
             </p:commandButton>
 
+            <p:commandButton actionListener="#{colaboratorController.fillListColaboratorTO()}" update="form"/>
+            
             <p:dataTable 
                 var = "colaboratorTO" 
                 value="#{colaboratorController.listColaboratorTO}" 
