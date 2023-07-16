@@ -46,7 +46,7 @@
                              styleClass="ui-button-success">
                 <p:resetInput target="form manage-Doc-content"/>
             </p:commandButton>
-            
+            <p:commandButton actionListener="#{loginController.fillListDocsTO()}"/>
             <p:dataTable 
                 var = "docTO" 
                 value="#{loginController.listDocsTO}" 
@@ -74,6 +74,17 @@
                 </p:column>
                 
                 <p:column>
+                    <p:commandButton 
+                        value="Download" 
+                        
+                        icon="pi pi-arrow-down" 
+                        oncomplete="PF('downloadDocDialog').show()"
+                        styleClass="mr-2" 
+                        style="left:  .90rem"
+                        process="@this" 
+                        update="form">
+                        <f:setPropertyActionListener value="#{docTO}" target="#{loginController.docTO}" />
+                    </p:commandButton>
                     <p:commandButton 
                         value="Delete" 
                         class="ui-button-warning rounded-button"
@@ -104,6 +115,30 @@
                 </p:outputPanel>
             </p:dialog>
             
+            <p:confirmDialog  
+                widgetVar="downloadDocDialog" 
+                showEffect="fade" 
+                width="300"
+                message="Are you sure?" 
+                header="Confirm" 
+                severity="warn">
+
+                <p:commandButton 
+                    value="Cancel" 
+                    icon="pi pi-times" 
+                    onclick="PF('downloadDocDialog').hide()"
+                    style="float: left"
+                    class="ui-button-secondary"/>
+
+                <p:commandButton 
+                    value="Download" 
+                    icon="pi pi-times" 
+                    update="form" 
+                    process="@this" > 
+                    <p:fileDownload value="#{loginController.downloadDoc}" />
+                </p:commandButton> 
+
+            </p:confirmDialog>
             <p:confirmDialog  
                 widgetVar="deleteDocDialog" 
                 showEffect="fade" 
