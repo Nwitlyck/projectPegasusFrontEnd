@@ -13,6 +13,8 @@ import javax.faces.context.*;
 import javax.faces.application.*;
 import javax.servlet.http.HttpServletRequest;
 import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.model.file.UploadedFile;
 
 /*
@@ -105,9 +107,10 @@ public class LoginController implements Serializable {
 
     public void fillListDocsTO() {
         try {
-            listDocsTO = serviceDocsTO.select();
-
+            listDocsTO = serviceDocsTO.selectByColaboratorId(logColaboratorTO.getId());
+ 
         } catch (Exception e) {
+            e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to get data"));
             listDocsTO = new ArrayList<DocTO>();
         }
@@ -226,10 +229,10 @@ public class LoginController implements Serializable {
     public void handleFileUpload(FileUploadEvent event) {
         try {
             this.originalPdfFile = null;
-            UploadedFile file = event.getFile();
+            UploadedFile file = event.getFile(); 
             if (file != null && file.getContent() != null && file.getContent().length > 0 && file.getFileName() != null) {
                 this.originalPdfFile = file;
-                this.copyFileInFileSystem(file.getInputStream(), "C:\\Users\\david\\OneDrive\\Escritorio\\DocsSavedProjectPegasus", this.originalPdfFile.getFileName());
+                this.copyFileInFileSystem(file.getInputStream(), "C:\\Users\\ester\\OneDrive\\Documentos", this.originalPdfFile.getFileName());
                 FacesMessage msg = new FacesMessage("Successful", this.originalPdfFile.getFileName() + " is uploaded.");
                 FacesContext.getCurrentInstance().addMessage(null, msg);
             }
@@ -301,5 +304,15 @@ public class LoginController implements Serializable {
         }
         fillListDocsTO();
     }
-
+     
+    public StreamedContent getDownloadDoc(){
+       File doc = new File(docTO.getDocLocation());
+        
+        return DefaultStreamedContent.builder()
+               .name(doc.getName())
+               .contentType("application/pdf")
+               .stream(() ->FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream(docTO.getDocLocation()))
+               .build();
+    }
+ 
 }
