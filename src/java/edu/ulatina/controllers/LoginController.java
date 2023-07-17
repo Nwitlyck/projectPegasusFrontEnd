@@ -20,7 +20,9 @@ public class LoginController implements Serializable {
     private String password;
 
     private ColaboratorTO logColaboratorTO;
-
+    
+    private PersonalDataTO logPersonalDataTO;
+    
     public LoginController() {
     }
     
@@ -47,6 +49,14 @@ public class LoginController implements Serializable {
     public void setLogColaboratorTO(ColaboratorTO logColaboratorTO) {
         this.logColaboratorTO = logColaboratorTO;
     }
+
+    public PersonalDataTO getLogPersonalDataTO() {
+        return logPersonalDataTO;
+    }
+
+    public void setLogPersonalDataTO(PersonalDataTO logPersonalDataTO) {
+        this.logPersonalDataTO = logPersonalDataTO;
+    }
     
     public void logIn() {
         if (verifyNulls()) {
@@ -59,6 +69,7 @@ public class LoginController implements Serializable {
 
         try {
             this.logColaboratorTO = new ServiceColaboratorTO().selectByEmail(this.email);
+            this.logPersonalDataTO = new ServicePersonalDataTO().selectByColaboratorId(this.logColaboratorTO.getId()) ;
             this.email = "";
             this.password = "";
 
