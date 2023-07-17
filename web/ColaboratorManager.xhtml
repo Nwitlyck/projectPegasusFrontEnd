@@ -48,8 +48,6 @@
                              styleClass="ui-button-success">
                 <p:resetInput target="form manage-Colaborator-content"/>
             </p:commandButton>
-
-            <p:commandButton actionListener="#{colaboratorController.fillListColaboratorTO()}" update="form"/>
             
             <p:dataTable 
                 var = "colaboratorTO" 
@@ -99,7 +97,7 @@
                         style="background: lightblue; border: none"
                         process="@this">
                         <f:setPropertyActionListener value="#{colaboratorTO}" target="#{colaboratorController.selectedColaboratorTO}" />
-                        <p:resetInput target=":form:manage-Colaborator-content" />
+                        <p:resetInput target=":form:manage-Colaborator-content"/>
                     </p:commandButton>
                     <p:commandButton 
                         class="ui-button-warning rounded-button"
@@ -130,14 +128,14 @@
 
             <p:dialog header="Colaborator Detail" showEffect="fade" modal="true"
                       widgetVar="manageColaboratorDialog" responsive="true" id="managerColaborator">
-                <p:outputPanel id="manage-Colaborator-content" class="ui-fluid">
+                <p:outputPanel id="manage-Colaborator-content" class="ui-fluid" >
                     
                     <div class="p-field">
                         <p:outputLabel for="email">E-Mail</p:outputLabel>
                         <p:inputText id="email" value="#{colaboratorController.selectedColaboratorTO.email}"></p:inputText>
                     </div>
                     <div class="p-field">
-                        <p:outputLabel for="acceslevel">Acces level</p:outputLabel>
+                        <p:outputLabel for="acceslevel">Access level</p:outputLabel>
                         <p:inputText id="acceslevel" value="#{colaboratorController.selectedColaboratorTO.acceslevel}"><p:keyFilter mask="num" /></p:inputText>
                     </div>
                     <div class="p-field">
@@ -147,6 +145,20 @@
                     <div class="p-field">
                         <p:outputLabel for="password">Password</p:outputLabel>
                         <p:inputText id="password" value="#{colaboratorController.selectedColaboratorTO.password}" />
+                    </div>
+                     <div class="p-field">
+                        <p:outputLabel for="name"> Name</p:outputLabel>
+                        <p:inputText id="name" value="#{colaboratorController.selectedPersonalData.name}" />
+                        
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="birthdate"> Birthdate</p:outputLabel>
+                        <p:calendar id="birthdate" value="#{colaboratorController.calendarBirthDate}" />
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="emergencycontact">Emergency Contact</p:outputLabel>
+                        <p:inputText id="emergencycontact" value="#{colaboratorController.selectedPersonalData.emergencycontact}"><p:keyFilter mask="num" /></p:inputText>
+                        
                     </div>
 
                 </p:outputPanel>

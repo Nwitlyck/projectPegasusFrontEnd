@@ -1,7 +1,7 @@
 package edu.ulatina.controllers;
 
-import edu.ulatina.serviceTO.ServiceColaboratorTO;
-import edu.ulatina.transfereObjects.ColaboratorTO;
+import edu.ulatina.serviceTO.*;
+import edu.ulatina.transfereObjects.*;
 import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -30,6 +30,28 @@ public class ColaboratorController implements Serializable {
     @ManagedProperty(value = "#{loginController}")
     private LoginController loginController;
 
+    private PersonalDataTO selectedPersonalData;
+
+    private ServicePersonalDataTO servicePersonalDataTO;
+
+    private ColaboratorTO logColaborator;
+
+    public ServicePersonalDataTO getServicePersonalDataTO() {
+        return servicePersonalDataTO;
+    }
+
+    public void setServicePersonalDataTO(ServicePersonalDataTO servicePersonalDataTO) {
+        this.servicePersonalDataTO = servicePersonalDataTO;
+    }
+
+    public PersonalDataTO getSelectedPersonalData() {
+        return selectedPersonalData;
+    }
+
+    public void setSelectedPersonalData(PersonalDataTO selectedPersonalData) {
+        this.selectedPersonalData = selectedPersonalData;
+    }
+
     public List<ColaboratorTO> getListColaboratorTO() {
         return listColaboratorTO;
     }
@@ -44,6 +66,9 @@ public class ColaboratorController implements Serializable {
 
     public void setSelectedColaboratorTO(ColaboratorTO selectedColaboratorTO) {
         this.selectedColaboratorTO = selectedColaboratorTO;
+        if (!isNewColaboratorTO()) {
+            personalDateFromColaborator();
+        }
     }
 
     public ServiceColaboratorTO getServiceColaboratorTO() {
@@ -98,11 +123,24 @@ public class ColaboratorController implements Serializable {
         }
     }
 
+    public java.util.Date getCalendarBirthDate() {
+        return (java.util.Date) this.selectedPersonalData.getBirthdate();
+    }
+
+    public void setCalendarBirthDate(java.util.Date birthDate) {
+        if (birthDate != null) {
+            this.selectedPersonalData.setBirthdate(new java.sql.Date(birthDate.getTime()));
+        }
+    }
+
     //mettods
     @PostConstruct
     public void initianizate() {
+        logColaborator = loginController.logColaborator();
         serviceColaboratorTO = new ServiceColaboratorTO();
+        servicePersonalDataTO = new ServicePersonalDataTO();
         selectedColaboratorTO = new ColaboratorTO();
+        selectedPersonalData = new PersonalDataTO();
         fillListColaboratorTO();
         sizeListColaboratorTO = listColaboratorTO.size() + "";
     }
@@ -125,8 +163,11 @@ public class ColaboratorController implements Serializable {
         }
 
         try {
-            serviceColaboratorTO.insert(this.selectedColaboratorTO);
+            serviceColaboratorTO.insert(selectedColaboratorTO);
+            selectedPersonalData.setId_colaborator(serviceColaboratorTO.selectByEmail(selectedColaboratorTO.getEmail()).getId());
+            servicePersonalDataTO.insert(this.selectedPersonalData);
         } catch (Exception e) {
+            e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Warning", "There was a problem with the connection unable to add colaborator data"));
         }
         initianizate();
@@ -140,6 +181,7 @@ public class ColaboratorController implements Serializable {
 
         try {
             serviceColaboratorTO.update(selectedColaboratorTO);
+            servicePersonalDataTO.update(selectedPersonalData);
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to update calaborator data"));
         }
@@ -148,8 +190,10 @@ public class ColaboratorController implements Serializable {
 
     public void desableColaboratorTO() {
         selectedColaboratorTO.setState(0);
+        selectedPersonalData.setState(0);
         try {
             serviceColaboratorTO.update(selectedColaboratorTO);
+            servicePersonalDataTO.update(selectedPersonalData);
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to desable calaborator data"));
         }
@@ -158,21 +202,32 @@ public class ColaboratorController implements Serializable {
 
     public void deleteColaboratorTO() {
         try {
+            servicePersonalDataTO.delete(selectedPersonalData);
             serviceColaboratorTO.delete(selectedColaboratorTO);
         } catch (Exception e) {
+            e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to delete calaborator data"));
         }
         initianizate();
     }
 
     public void openNew() {
-        selectedColaboratorTO = new ColaboratorTO();
-        selectedColaboratorTO.setState(1);
+        selectedColaboratorTO = new ColaboratorTO(0, logColaborator.getId(), "", 0, new java.sql.Date(System.currentTimeMillis()), null, "", 0, 1);
         newColaboratorTO = true;
+        selectedPersonalData = new PersonalDataTO(0, 0, "", null, 0, 1);
     }
 
     public void closeNew() {
         newColaboratorTO = false;
+    }
+
+    public void personalDateFromColaborator() {
+
+        try {
+            selectedPersonalData = servicePersonalDataTO.selectByColaboratorId(selectedColaboratorTO.getId());
+        } catch (Exception e) {
+            selectedPersonalData = new PersonalDataTO(0, selectedColaboratorTO.getId(), "", null, 0, 1); 
+        }
     }
 
     public boolean verifyNull() {
@@ -194,6 +249,19 @@ public class ColaboratorController implements Serializable {
         }
         if (selectedColaboratorTO.getPassword().isEmpty() || selectedColaboratorTO.getPassword() == null) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator password is not fill"));
+            return true;
+        }
+        if (selectedPersonalData.getName().isEmpty() || selectedPersonalData.getName() == null) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Name is not filled"));
+            return true;
+        }
+
+        if (selectedPersonalData.getBirthdate() == null) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator birthdate is not fill"));
+            return true;
+        }
+        if (selectedPersonalData.getEmergencycontact() <= 10000000 || selectedPersonalData.getEmergencycontact() > 1000000000) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator emergency contact is not on range"));
             return true;
         }
 
