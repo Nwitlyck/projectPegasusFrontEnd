@@ -97,7 +97,7 @@
                         style="background: lightblue; border: none"
                         process="@this">
                         <f:setPropertyActionListener value="#{colaboratorTO}" target="#{colaboratorController.selectedColaboratorTO}" />
-                        <p:resetInput target=":form:manage-Colaborator-content" />
+                        <p:resetInput target=":form:manage-Colaborator-content"/>
                     </p:commandButton>
                     <p:commandButton 
                         class="ui-button-warning rounded-button"
@@ -128,7 +128,7 @@
 
             <p:dialog header="Colaborator Detail" showEffect="fade" modal="true"
                       widgetVar="manageColaboratorDialog" responsive="true" id="managerColaborator">
-                <p:outputPanel id="manage-Colaborator-content" class="ui-fluid">
+                <p:outputPanel id="manage-Colaborator-content" class="ui-fluid" >
                     
                     <div class="p-field">
                         <p:outputLabel for="email">E-Mail</p:outputLabel>
@@ -153,7 +153,7 @@
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="birthdate"> Birthdate</p:outputLabel>
-                        <p:calendar id="birthdate" value="#{colaboratorController.selectedPersonalData.birthdate}" />
+                        <p:calendar id="birthdate" value="#{colaboratorController.calendarBirthDate}" />
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="emergencycontact">Emergency Contact</p:outputLabel>
