@@ -1,7 +1,7 @@
 package edu.ulatina.controllers;
 
-import edu.ulatina.serviceTO.ServiceColaboratorTO;
-import edu.ulatina.transfereObjects.ColaboratorTO;
+import edu.ulatina.serviceTO.*;
+import edu.ulatina.transfereObjects.*;
 import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -30,6 +30,26 @@ public class ColaboratorController implements Serializable {
     @ManagedProperty(value = "#{loginController}")
     private LoginController loginController;
 
+    private PersonalDataTO  selectedPersonalData;
+    
+    private ServicePersonalDataTO servicePersonalDataTO;
+
+    public ServicePersonalDataTO getServicePersonalDataTO() {
+        return servicePersonalDataTO;
+    }
+
+    public void setServicePersonalDataTO(ServicePersonalDataTO servicePersonalDataTO) {
+        this.servicePersonalDataTO = servicePersonalDataTO;
+    }
+
+    public PersonalDataTO getSelectedPersonalData() {
+        return selectedPersonalData;
+    }
+
+    public void setSelectedPersonalData(PersonalDataTO selectedPersonalData) {
+        this.selectedPersonalData = selectedPersonalData;
+    }
+    
     public List<ColaboratorTO> getListColaboratorTO() {
         return listColaboratorTO;
     }
@@ -126,6 +146,8 @@ public class ColaboratorController implements Serializable {
 
         try {
             serviceColaboratorTO.insert(this.selectedColaboratorTO);
+            selectedPersonalData.setId_colaborator(serviceColaboratorTO.selectByEmail(selectedColaboratorTO.getEmail()).getId());
+            servicePersonalDataTO.insert(selectedPersonalData);
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Warning", "There was a problem with the connection unable to add colaborator data"));
         }
@@ -164,11 +186,14 @@ public class ColaboratorController implements Serializable {
         }
         initianizate();
     }
+    
 
     public void openNew() {
         selectedColaboratorTO = new ColaboratorTO();
         selectedColaboratorTO.setState(1);
         newColaboratorTO = true;
+        selectedPersonalData = new PersonalDataTO();
+        selectedPersonalData.setState(1);
     }
 
     public void closeNew() {
@@ -194,6 +219,19 @@ public class ColaboratorController implements Serializable {
         }
         if (selectedColaboratorTO.getPassword().isEmpty() || selectedColaboratorTO.getPassword() == null) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator password is not fill"));
+            return true;
+        }
+        if (selectedPersonalData.getName().isEmpty() || selectedPersonalData.getName()== null) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Name is not filled"));
+            return true;
+        }
+       
+        if (selectedPersonalData.getBirthdate() == null) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator birthdate is not fill"));
+            return true;
+        }
+        if (selectedPersonalData.getEmergencycontact() <= 10000000|| selectedPersonalData.getEmergencycontact() > 1000000000) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator emergency contact is not on range"));
             return true;
         }
 
