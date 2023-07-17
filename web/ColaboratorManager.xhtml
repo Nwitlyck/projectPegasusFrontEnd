@@ -135,7 +135,7 @@
                         <p:inputText id="email" value="#{colaboratorController.selectedColaboratorTO.email}"></p:inputText>
                     </div>
                     <div class="p-field">
-                        <p:outputLabel for="acceslevel">Acces level</p:outputLabel>
+                        <p:outputLabel for="acceslevel">Access level</p:outputLabel>
                         <p:inputText id="acceslevel" value="#{colaboratorController.selectedColaboratorTO.acceslevel}"><p:keyFilter mask="num" /></p:inputText>
                     </div>
                     <div class="p-field">
@@ -145,6 +145,20 @@
                     <div class="p-field">
                         <p:outputLabel for="password">Password</p:outputLabel>
                         <p:inputText id="password" value="#{colaboratorController.selectedColaboratorTO.password}" />
+                    </div>
+                     <div class="p-field">
+                        <p:outputLabel for="name"> Name</p:outputLabel>
+                        <p:inputText id="name" value="#{colaboratorController.selectedPersonalData.name}" />
+                        
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="birthdate"> Birthdate</p:outputLabel>
+                        <p:calendar id="birthdate" value="#{colaboratorController.selectedPersonalData.birthdate}" />
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="emergencycontact">Emergency Contact</p:outputLabel>
+                        <p:inputText id="emergencycontact" value="#{colaboratorController.selectedPersonalData.emergencycontact}"><p:keyFilter mask="num" /></p:inputText>
+                        
                     </div>
 
                 </p:outputPanel>
