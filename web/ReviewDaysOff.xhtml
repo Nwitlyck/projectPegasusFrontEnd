@@ -37,6 +37,8 @@
 
         <h:form id="form"> 
             <p:growl id="info" showDetail="true"/>
+
+
             <p:dataTable 
                 var = "NonWorkingDayTO" 
                 value="#{daysOffController.listNonWorkingDayTO}" 
@@ -48,7 +50,23 @@
                 emptyMessage="There is no data">
 
                 <f:facet name="header">
-                    List Days Off To Review
+                    List Days Off To Review and Days Off Review
+
+                    <p:commandButton 
+                        value="Show rewied" 
+                        styleClass="ui-button-secondary" 
+                        actionListener="#{daysOffController.loadRewied()}" 
+                        rendered="#{!daysOffController.showRewied}"
+                        process="@this" 
+                        update="form"/>
+
+                    <p:commandButton 
+                        value="Show not rewied" 
+                        styleClass="ui-button-secondary" 
+                        actionListener="#{daysOffController.loadNotRewied()}"  
+                        rendered="#{daysOffController.showRewied}"
+                        process="@this" 
+                        update="form"/>
                 </f:facet>
 
                 <p:column headerText="Id Colaborator" sortBy="#{NonWorkingDayTO.idColaborator}" filterBy="#{NonWorkingDayTO.idColaborator}" filterMatchMode="contains">
