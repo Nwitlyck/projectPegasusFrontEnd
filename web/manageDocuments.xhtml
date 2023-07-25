@@ -34,7 +34,7 @@
             </div>
 
         </h:form>
-        
+
         <h:form id="form">
 
             <p:growl id="messages" showDetail="true"/>
@@ -42,13 +42,14 @@
             <p:commandButton value="Add document" 
                              icon="pi pi-plus" 
                              update="form manage-Doc-content" 
+                             actionListener="#{documentsController.closeSelected}"
                              oncomplete="PF('manageDocDialog').show()"
                              styleClass="ui-button-success">
                 <p:resetInput target="form manage-Doc-content"/>
             </p:commandButton>
             <p:dataTable 
                 var = "docTODB" 
-                value="#{documentsController.listDocsTO}" 
+                value="#{documentsController.felipe}" 
                 paginator="true" 
                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
                 paginatorPosition="bottom"
@@ -71,11 +72,11 @@
                 <p:column headerText="Doc location" sortBy="#{docTODB.docLocation}" filterBy="#{docTODB.docLocation}" filterMatchMode="contains">
                     <h:outputText value="#{docTODB.docLocation}" />
                 </p:column>
-                
+
                 <p:column>
                     <p:commandButton 
                         value="Download" 
-                        
+
                         icon="pi pi-arrow-down" 
                         oncomplete="PF('downloadDocDialog').show()"
                         styleClass="mr-2" 
@@ -103,23 +104,27 @@
                       widgetVar="manageDocDialog" responsive="true" id="managerDocs">
                 <p:outputPanel id="manage-Doc-content" class="ui-fluid">
 
-                    
+
                     <div class="p-field">
                         <p:outputLabel for="docType">Document Type</p:outputLabel>
                         <p:inputText id="docType" value="#{documentsController.docTO.type}" disabled="#{documentsController.selectType}"></p:inputText>
-                        <p:commandButton value="Confirm" actionListener="#{documentsController.closeSelected}" disabled="#{documentsController.selectType}" update="form"/>
+                        <p:commandButton value="Confirm" actionListener="#{documentsController.openSelected}" disabled="#{documentsController.selectType}" update="manage-Doc-content"/>
+                        <p:commandButton value="Edit" actionListener="#{documentsController.closeSelected()}" disabled="#{!documentsController.selectType}" update="manage-Doc-content"/>
                     </div>
-                    <p:fileUpload mode="advanced"
-                                  multiple="false"
-                                  allowTypes="/(\.|\/)(pdf)$/"
-                                  invalidSizeMessage="The maximum size allowed is 100 KB"
-                                  invalidFileMessage="Only pdf are allowed"
-                                  update="form"
-                                  listener="#{documentsController.handleFileUpload}"/>
+                    <div class="p-field">
+                        <p:fileUpload mode="advanced"
+                                      multiple="false"
+                                      disabled="#{!documentsController.selectType}"
+                                      allowTypes="/(\.|\/)(pdf)$/"
+                                      invalidSizeMessage="The maximum size allowed is 100 KB"
+                                      invalidFileMessage="Only pdf are allowed"
+                                      update="form"
+                                      listener="#{documentsController.handleFileUpload}"/>
+                    </div>
 
                 </p:outputPanel>
             </p:dialog>
-            
+
             <p:confirmDialog  
                 widgetVar="downloadDocDialog" 
                 showEffect="fade" 
