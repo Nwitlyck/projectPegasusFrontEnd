@@ -34,8 +34,14 @@ public class DocumentController {
     private DocTO docTO;
 
     private ServiceDocsTO serviceDocsTO;
-
-    private List<DocTO> listDocsTO= new ArrayList<DocTO>();
+    
+    private List<DocTO> listDocTO;
+    
+    private List<DocTO> listFelipe;
+    
+    private List<DocTO> felipe;
+    
+    
 
     public LoginController getLoginController() {
         return loginController;
@@ -69,12 +75,12 @@ public class DocumentController {
         this.serviceDocsTO = serviceDocsTO;
     }
 
-    public List<DocTO> getListDocsTO() {
-        return listDocsTO;
+    public List<DocTO> getListDocTO() {
+        return listDocTO;
     }
 
-    public void setListDocsTO(List<DocTO> listDocsTO) {
-        this.listDocsTO = listDocsTO;
+    public void setListDocTO(List<DocTO> listDocTO) {
+        this.listDocTO = listDocTO;
     }
 
     public boolean isSelectType() {
@@ -84,6 +90,26 @@ public class DocumentController {
     public void setSelectType(boolean SelectType) {
         this.SelectType = SelectType;
     }
+
+    public List<DocTO> getListFelipe() {
+        return listFelipe;
+    }
+
+    public void setListFelipe(List<DocTO> listFelipe) {
+        this.listFelipe = listFelipe;
+    }
+
+    public List<DocTO> getFelipe() {
+        return felipe;
+    }
+
+    public void setFelipe(List<DocTO> felipe) {
+        this.felipe = felipe;
+    }
+
+    
+    
+    
 
     //metods
     @PostConstruct
@@ -96,11 +122,11 @@ public class DocumentController {
 
     public void fillListDocsTO() {
         try {
-            listDocsTO = serviceDocsTO.selectByColaboratorId(loginController.getLogColaboratorTO().getId());
+            felipe = serviceDocsTO.selectByColaboratorId(loginController.getLogColaboratorTO().getId());
 
         } catch (Exception e) {
             e.printStackTrace();
-            listDocsTO = new ArrayList<DocTO>();
+            felipe = new ArrayList<DocTO>();
         }
     }
 
@@ -110,7 +136,7 @@ public class DocumentController {
             UploadedFile file = event.getFile();
             if (file != null && file.getContent() != null && file.getContent().length > 0 && file.getFileName() != null) {
                 this.originalPdfFile = file;
-                this.copyFileInFileSystem(file.getInputStream(), "D:\\Projecto2\\projectPegasusFrontEnd\\web\\resources\\Files", this.originalPdfFile.getFileName());
+                this.copyFileInFileSystem(file.getInputStream(), "D:\\Universidad\\Proyecto Software II\\Projecto\\projectPegasusFrontEnd\\web\\resources\\Files", this.originalPdfFile.getFileName());
                 FacesMessage msg = new FacesMessage("Successful", this.originalPdfFile.getFileName() + " is uploaded.");
                 FacesContext.getCurrentInstance().addMessage(null, msg);
             }
@@ -154,7 +180,6 @@ public class DocumentController {
     public void saveDoc(String docLocation) {
 
         docTO.setColaboratorId(loginController.getLogColaboratorTO().getId());
-        docTO.setType(1);
         docTO.setDocLocation(docLocation);
 
         try {
