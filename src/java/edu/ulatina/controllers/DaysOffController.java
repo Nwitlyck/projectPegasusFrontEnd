@@ -9,7 +9,7 @@ import java.util.*;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.*;
 import javax.faces.context.*;
-import javax.faces.application.*; 
+import javax.faces.application.*;
 
 /*
  * @author Nwitlyck
@@ -25,6 +25,21 @@ public class DaysOffController implements Serializable {
     private boolean newNonWorkingDay;
 
     private List<NonWorkingDayTO> listNonWorkingDayTO;
+
+    private boolean showRewied;
+    
+    private NonWorkingDayTO currentNonWorkingDayTO;
+
+    @ManagedProperty(value = "#{loginController}")
+    private LoginController loginController;
+
+    public LoginController getLoginController() {
+        return loginController;
+    }
+
+    public void setLoginController(LoginController loginController) {
+        this.loginController = loginController;
+    }
 
     public NonWorkingDayTO getSelectedNonWorkingDayTO() {
         return selectedNonWorkingDayTO;
@@ -48,6 +63,14 @@ public class DaysOffController implements Serializable {
 
     public void setListNonWorkingDayTO(List<NonWorkingDayTO> listNonWorkingDayTO) {
         this.listNonWorkingDayTO = listNonWorkingDayTO;
+    }
+
+    public boolean isShowRewied() {
+        return showRewied;
+    }
+
+    public void setShowRewied(boolean showRewied) {
+        this.showRewied = showRewied;
     }
 
     public java.util.Date getCalendarInitialDate() {
@@ -78,8 +101,21 @@ public class DaysOffController implements Serializable {
         this.newNonWorkingDay = newNonWorkingDay;
     }
 
+    public NonWorkingDayTO getCurrentNonWorkingDayTO() {
+        return currentNonWorkingDayTO;
+    }
+
+    public void setCurrentNonWorkingDayTO(NonWorkingDayTO currentNonWorkingDayTO) {
+        this.currentNonWorkingDayTO = currentNonWorkingDayTO;
+    }
+    
+    
+    
+    //Metods
+
     @PostConstruct
     public void initialize() {
+        this.showRewied = false;
         serviceNonWorkingDayTO = new ServiceNonWorkingDayTO();
         selectedNonWorkingDayTO = new NonWorkingDayTO(0, 0, 0, null, null, 0, 0);
         fillListNonWorkingDayTO();
@@ -87,8 +123,36 @@ public class DaysOffController implements Serializable {
     }
 
     public void fillListNonWorkingDayTO() {
+        if (loginController.getLogColaboratorTO().getAcceslevel() == 2) {
+            fillAsAdmin();
+        } else {
+            fillAsManager();
+        }
+    }
+
+    public void fillAsAdmin() {
+
         try {
-            listNonWorkingDayTO = serviceNonWorkingDayTO.select();
+            if (!this.showRewied) {
+                listNonWorkingDayTO = serviceNonWorkingDayTO.selectByReview(1);
+            } else {
+                listNonWorkingDayTO = serviceNonWorkingDayTO.selectByReview(0);
+            }
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to get data"));
+            listNonWorkingDayTO = new ArrayList<NonWorkingDayTO>();
+        }
+    }
+
+    public void fillAsManager() {
+
+        try {
+            if (!this.showRewied) {
+                listNonWorkingDayTO = serviceNonWorkingDayTO.selectByReviewAndColaboratorManagerId(1,loginController.logColaborator().getId());
+            } else {
+                listNonWorkingDayTO = serviceNonWorkingDayTO.selectByReviewAndColaboratorManagerId(0, loginController.logColaborator().getId());
+            } 
 
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to get data"));
@@ -127,19 +191,17 @@ public class DaysOffController implements Serializable {
         }
 
         FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_INFO, "Done", "Time off requested"));
+        fillListNonWorkingDayTO(); 
+    }
+
+    public void loadRewied() {
+        this.showRewied = true;
         fillListNonWorkingDayTO();
     }
 
-    public void updateNonWorkingDayTO() {
-
-    }
-
-    public void desableNonWorkingDayTO() {
-
-    }
-
-    public void deleteNonWorkingDayTO() {
-
+    public void loadNotRewied() {
+        this.showRewied = false;
+        fillListNonWorkingDayTO();
     }
 
     public void openNew() {
@@ -196,35 +258,47 @@ public class DaysOffController implements Serializable {
             return false;
 
         }
-        if(selectedNonWorkingDayTO.getFinalDate().before(selectedNonWorkingDayTO.getInitialDate())) {
+        if (selectedNonWorkingDayTO.getFinalDate().before(selectedNonWorkingDayTO.getInitialDate())) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The final date is before initial date"));
             return false;
 
         }
         return true;
     }
-    
-    public void approved(){
+
+    public void approved() {
         selectedNonWorkingDayTO.setState(1);
         selectedNonWorkingDayTO.setReview(1);
         try {
             serviceNonWorkingDayTO.update(selectedNonWorkingDayTO);
-            
+
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
         }
         fillListNonWorkingDayTO();
     }
 
-     public void disapproved(){
+    public void disapproved() {
         selectedNonWorkingDayTO.setState(0);
         selectedNonWorkingDayTO.setReview(1);
         try {
             serviceNonWorkingDayTO.update(selectedNonWorkingDayTO);
-            
+
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be disapproved"));
         }
         fillListNonWorkingDayTO();
+    }
+    
+    public String managerEmailById(NonWorkingDayTO nonWorkingDayTO){
+        
+        ColaboratorTO manager = new ColaboratorTO();
+        manager.setId(nonWorkingDayTO.getIdColaborator());
+        
+        try {
+            return new ServiceColaboratorTO().selectByPk(manager).getEmail();
+        } catch (Exception e) {
+            return "";
+        }
     }
 }

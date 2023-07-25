@@ -16,7 +16,11 @@
 
                         <p:menuitem value="Profile" outcome="Profile" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="Manager" outcome="ColaboratorManager" icon="pi pi-fw pi-home" rendered="#{loginController.manager}"/>
-                        <p:menuitem value="Disabled" outcome="NonActiveColaborator" icon="pi pi-fw pi-home" rendered="#{loginController.admin}"/>
+                        <p:menuitem value="Documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
+
+                    </p:submenu>
+
+                    <p:submenu label="Days Off" icon="pi pi-fw pi-user">
 
                         <p:submenu label="Request Days Off" icon="pi pi-fw pi-user">
                             <p:menuitem value="Vacations" outcome="Vacations" icon="pi pi-fw pi-user"/>
@@ -24,17 +28,18 @@
                         </p:submenu>
 
                         <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
-                        <p:menuitem value="Manage your documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
+
                         <p:commandButton value="Logout" actionListener="#{logOutController.logOut()}" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+
                     </f:facet>
                 </p:menubar>
             </div>
 
         </h:form>
-        
+
         <h:form id="form">
 
             <p:growl id="messages" showDetail="true"/>
@@ -42,13 +47,14 @@
             <p:commandButton value="Add document" 
                              icon="pi pi-plus" 
                              update="form manage-Doc-content" 
+                             actionListener="#{documentsController.closeSelected}"
                              oncomplete="PF('manageDocDialog').show()"
                              styleClass="ui-button-success">
                 <p:resetInput target="form manage-Doc-content"/>
             </p:commandButton>
             <p:dataTable 
-                var = "docTO" 
-                value="#{documentsController.listDocsTO}" 
+                var = "docTODB" 
+                value="#{documentsController.felipe}" 
                 paginator="true" 
                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
                 paginatorPosition="bottom"
@@ -60,29 +66,29 @@
                     List Docs
                 </f:facet>
 
-                <p:column headerText="Id Colaborator" sortBy="#{docTO.colaboratorId}" filterBy="#{docTO.colaboratorId}" filterMatchMode="contains">
-                    <h:outputText value="#{docTO.colaboratorId}" />
+                <p:column headerText="Id Colaborator" sortBy="#{docTODB.colaboratorId}" filterBy="#{docTODB.colaboratorId}" filterMatchMode="contains">
+                    <h:outputText value="#{docTODB.colaboratorId}" />
                 </p:column>
 
-                <p:column headerText="Type" sortBy="#{docTO.type}" filterBy="#{docTO.type}" filterMatchMode="contains">
-                    <h:outputText value="#{docTO.type}" />
+                <p:column headerText="Type" sortBy="#{docTODB.type}" filterBy="#{docTODB.type}" filterMatchMode="contains">
+                    <h:outputText value="#{docTODB.type}" />
                 </p:column>
 
-                <p:column headerText="Doc location" sortBy="#{docTO.docLocation}" filterBy="#{docTO.docLocation}" filterMatchMode="contains">
-                    <h:outputText value="#{docTO.docLocation}" />
+                <p:column headerText="Doc location" sortBy="#{docTODB.docLocation}" filterBy="#{docTODB.docLocation}" filterMatchMode="contains">
+                    <h:outputText value="#{docTODB.docLocation}" />
                 </p:column>
-                
+
                 <p:column>
                     <p:commandButton 
                         value="Download" 
-                        
+
                         icon="pi pi-arrow-down" 
                         oncomplete="PF('downloadDocDialog').show()"
                         styleClass="mr-2" 
                         style="left:  .90rem"
                         process="@this" 
                         update="form">
-                        <f:setPropertyActionListener value="#{docTO}" target="#{documentsController.docTO}" />
+                        <f:setPropertyActionListener value="#{docTODB}" target="#{documentsController.docTO}" />
                     </p:commandButton>
                     <p:commandButton 
                         value="Delete" 
@@ -93,7 +99,7 @@
                         style="left:  .90rem"
                         process="@this" 
                         update="form">
-                        <f:setPropertyActionListener value="#{docTO}" target="#{documentsController.docTO}" />
+                        <f:setPropertyActionListener value="#{docTODB}" target="#{documentsController.docTO}" />
                     </p:commandButton>
                 </p:column>
 
@@ -103,17 +109,27 @@
                       widgetVar="manageDocDialog" responsive="true" id="managerDocs">
                 <p:outputPanel id="manage-Doc-content" class="ui-fluid">
 
-                    <p:fileUpload mode="advanced"
-                                  multiple="false"
-                                  allowTypes="/(\.|\/)(pdf)$/"
-                                  invalidSizeMessage="The maximum size allowed is 100 KB"
-                                  invalidFileMessage="Only pdf are allowed"
-                                  update="form"
-                                  listener="#{documentsController.handleFileUpload}"/>
+
+                    <div class="p-field">
+                        <p:outputLabel for="docType">Document Type</p:outputLabel>
+                        <p:inputText id="docType" value="#{documentsController.docTO.type}" disabled="#{documentsController.selectType}"></p:inputText>
+                        <p:commandButton value="Confirm" actionListener="#{documentsController.openSelected}" disabled="#{documentsController.selectType}" update="manage-Doc-content"/>
+                        <p:commandButton value="Edit" actionListener="#{documentsController.closeSelected()}" disabled="#{!documentsController.selectType}" update="manage-Doc-content"/>
+                    </div>
+                    <div class="p-field">
+                        <p:fileUpload mode="advanced"
+                                      multiple="false"
+                                      disabled="#{!documentsController.selectType}"
+                                      allowTypes="/(\.|\/)(pdf)$/"
+                                      invalidSizeMessage="The maximum size allowed is 100 KB"
+                                      invalidFileMessage="Only pdf are allowed"
+                                      update="form"
+                                      listener="#{documentsController.handleFileUpload}"/>
+                    </div>
 
                 </p:outputPanel>
             </p:dialog>
-            
+
             <p:confirmDialog  
                 widgetVar="downloadDocDialog" 
                 showEffect="fade" 
