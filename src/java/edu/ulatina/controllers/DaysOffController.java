@@ -27,6 +27,8 @@ public class DaysOffController implements Serializable {
     private List<NonWorkingDayTO> listNonWorkingDayTO;
 
     private boolean showRewied;
+    
+    private NonWorkingDayTO currentNonWorkingDayTO;
 
     @ManagedProperty(value = "#{loginController}")
     private LoginController loginController;
@@ -98,6 +100,18 @@ public class DaysOffController implements Serializable {
     public void setNewNonWorkingDay(boolean newNonWorkingDay) {
         this.newNonWorkingDay = newNonWorkingDay;
     }
+
+    public NonWorkingDayTO getCurrentNonWorkingDayTO() {
+        return currentNonWorkingDayTO;
+    }
+
+    public void setCurrentNonWorkingDayTO(NonWorkingDayTO currentNonWorkingDayTO) {
+        this.currentNonWorkingDayTO = currentNonWorkingDayTO;
+    }
+    
+    
+    
+    //Metods
 
     @PostConstruct
     public void initialize() {
@@ -177,7 +191,7 @@ public class DaysOffController implements Serializable {
         }
 
         FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_INFO, "Done", "Time off requested"));
-        fillListNonWorkingDayTO();
+        fillListNonWorkingDayTO(); 
     }
 
     public void loadRewied() {
@@ -274,5 +288,17 @@ public class DaysOffController implements Serializable {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be disapproved"));
         }
         fillListNonWorkingDayTO();
+    }
+    
+    public String managerEmailById(NonWorkingDayTO nonWorkingDayTO){
+        
+        ColaboratorTO manager = new ColaboratorTO();
+        manager.setId(nonWorkingDayTO.getIdColaborator());
+        
+        try {
+            return new ServiceColaboratorTO().selectByPk(manager).getEmail();
+        } catch (Exception e) {
+            return "";
+        }
     }
 }
