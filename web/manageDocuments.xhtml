@@ -47,7 +47,7 @@
                 <p:resetInput target="form manage-Doc-content"/>
             </p:commandButton>
             <p:dataTable 
-                var = "docTO" 
+                var = "docTODB" 
                 value="#{documentsController.listDocsTO}" 
                 paginator="true" 
                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
@@ -60,16 +60,16 @@
                     List Docs
                 </f:facet>
 
-                <p:column headerText="Id Colaborator" sortBy="#{docTO.colaboratorId}" filterBy="#{docTO.colaboratorId}" filterMatchMode="contains">
-                    <h:outputText value="#{docTO.colaboratorId}" />
+                <p:column headerText="Id Colaborator" sortBy="#{docTODB.colaboratorId}" filterBy="#{docTODB.colaboratorId}" filterMatchMode="contains">
+                    <h:outputText value="#{docTODB.colaboratorId}" />
                 </p:column>
 
-                <p:column headerText="Type" sortBy="#{docTO.type}" filterBy="#{docTO.type}" filterMatchMode="contains">
-                    <h:outputText value="#{docTO.type}" />
+                <p:column headerText="Type" sortBy="#{docTODB.type}" filterBy="#{docTODB.type}" filterMatchMode="contains">
+                    <h:outputText value="#{docTODB.type}" />
                 </p:column>
 
-                <p:column headerText="Doc location" sortBy="#{docTO.docLocation}" filterBy="#{docTO.docLocation}" filterMatchMode="contains">
-                    <h:outputText value="#{docTO.docLocation}" />
+                <p:column headerText="Doc location" sortBy="#{docTODB.docLocation}" filterBy="#{docTODB.docLocation}" filterMatchMode="contains">
+                    <h:outputText value="#{docTODB.docLocation}" />
                 </p:column>
                 
                 <p:column>
@@ -82,7 +82,7 @@
                         style="left:  .90rem"
                         process="@this" 
                         update="form">
-                        <f:setPropertyActionListener value="#{docTO}" target="#{documentsController.docTO}" />
+                        <f:setPropertyActionListener value="#{docTODB}" target="#{documentsController.docTO}" />
                     </p:commandButton>
                     <p:commandButton 
                         value="Delete" 
@@ -93,7 +93,7 @@
                         style="left:  .90rem"
                         process="@this" 
                         update="form">
-                        <f:setPropertyActionListener value="#{docTO}" target="#{documentsController.docTO}" />
+                        <f:setPropertyActionListener value="#{docTODB}" target="#{documentsController.docTO}" />
                     </p:commandButton>
                 </p:column>
 
@@ -103,6 +103,12 @@
                       widgetVar="manageDocDialog" responsive="true" id="managerDocs">
                 <p:outputPanel id="manage-Doc-content" class="ui-fluid">
 
+                    
+                    <div class="p-field">
+                        <p:outputLabel for="docType">Document Type</p:outputLabel>
+                        <p:inputText id="docType" value="#{documentsController.docTO.type}" disabled="#{documentsController.selectType}"></p:inputText>
+                        <p:commandButton value="Confirm" actionListener="#{documentsController.closeSelected}" disabled="#{documentsController.selectType}" update="form"/>
+                    </div>
                     <p:fileUpload mode="advanced"
                                   multiple="false"
                                   allowTypes="/(\.|\/)(pdf)$/"
