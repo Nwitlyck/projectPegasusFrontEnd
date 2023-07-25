@@ -26,6 +26,8 @@ public class DocumentController {
 
     @ManagedProperty(value = "#{loginController}")
     private LoginController loginController;
+    
+    private boolean SelectType; 
 
     private UploadedFile originalPdfFile;
 
@@ -33,7 +35,7 @@ public class DocumentController {
 
     private ServiceDocsTO serviceDocsTO;
 
-    private List<DocTO> listDocsTO;
+    private List<DocTO> listDocsTO= new ArrayList<DocTO>();
 
     public LoginController getLoginController() {
         return loginController;
@@ -75,12 +77,21 @@ public class DocumentController {
         this.listDocsTO = listDocsTO;
     }
 
+    public boolean isSelectType() {
+        return SelectType;
+    }
+
+    public void setSelectType(boolean SelectType) {
+        this.SelectType = SelectType;
+    }
+
     //metods
     @PostConstruct
     public void initianizate() {
         docTO = new DocTO();
         serviceDocsTO = new ServiceDocsTO();
         fillListDocsTO();
+        this.SelectType=true; 
     }
 
     public void fillListDocsTO() {
@@ -99,7 +110,7 @@ public class DocumentController {
             UploadedFile file = event.getFile();
             if (file != null && file.getContent() != null && file.getContent().length > 0 && file.getFileName() != null) {
                 this.originalPdfFile = file;
-                this.copyFileInFileSystem(file.getInputStream(), "C:\\Users\\david\\OneDrive\\Escritorio\\DocsSavedProjectPegasus", this.originalPdfFile.getFileName());
+                this.copyFileInFileSystem(file.getInputStream(), "D:\\Projecto2\\projectPegasusFrontEnd\\web\\resources\\Files", this.originalPdfFile.getFileName());
                 FacesMessage msg = new FacesMessage("Successful", this.originalPdfFile.getFileName() + " is uploaded.");
                 FacesContext.getCurrentInstance().addMessage(null, msg);
             }
@@ -178,8 +189,16 @@ public class DocumentController {
         return DefaultStreamedContent.builder()
                 .name(doc.getName())
                 .contentType("application/pdf")
-                .stream(() -> FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream(docTO.getDocLocation()))
+                .stream(() -> FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("resources/Files/"+doc.getName()))
                 .build();
     }
 
+    public void openSelected() {
+        this.SelectType=true;
+        
+    }
+    
+    public void closeSelected() {
+        this.SelectType=false;
+    }
 }
