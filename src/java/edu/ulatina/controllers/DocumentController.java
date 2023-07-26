@@ -27,13 +27,21 @@ public class DocumentController {
     @ManagedProperty(value = "#{loginController}")
     private LoginController loginController;
 
+    private boolean SelectType;
+
     private UploadedFile originalPdfFile;
 
     private DocTO docTO;
 
     private ServiceDocsTO serviceDocsTO;
 
-    private List<DocTO> listDocsTO;
+    private List<DocTO> listDocTO;
+
+    private List<DocTO> listFelipe;
+
+    private List<DocTO> felipe;
+
+    private boolean enable;
 
     public LoginController getLoginController() {
         return loginController;
@@ -67,12 +75,44 @@ public class DocumentController {
         this.serviceDocsTO = serviceDocsTO;
     }
 
-    public List<DocTO> getListDocsTO() {
-        return listDocsTO;
+    public List<DocTO> getListDocTO() {
+        return listDocTO;
     }
 
-    public void setListDocsTO(List<DocTO> listDocsTO) {
-        this.listDocsTO = listDocsTO;
+    public void setListDocTO(List<DocTO> listDocTO) {
+        this.listDocTO = listDocTO;
+    }
+
+    public boolean isSelectType() {
+        return SelectType;
+    }
+
+    public void setSelectType(boolean SelectType) {
+        this.SelectType = SelectType;
+    }
+
+    public List<DocTO> getListFelipe() {
+        return listFelipe;
+    }
+
+    public void setListFelipe(List<DocTO> listFelipe) {
+        this.listFelipe = listFelipe;
+    }
+
+    public List<DocTO> getFelipe() {
+        return felipe;
+    }
+
+    public void setFelipe(List<DocTO> felipe) {
+        this.felipe = felipe;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 
     //metods
@@ -81,16 +121,36 @@ public class DocumentController {
         docTO = new DocTO();
         serviceDocsTO = new ServiceDocsTO();
         fillListDocsTO();
+        this.SelectType = true;
     }
 
     public void fillListDocsTO() {
         try {
-            listDocsTO = serviceDocsTO.selectByColaboratorId(loginController.getLogColaboratorTO().getId());
+            if(!enable) {
+                fill();
+            } else if (loginController.logColaborator().getAcceslevel() == 1) {
+                fillAsManager();
+            } else {
+                fillAsAdmin(); 
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
-            listDocsTO = new ArrayList<DocTO>();
+            felipe = new ArrayList<DocTO>();
         }
+    }
+
+    public void fill() throws Exception {
+        felipe = serviceDocsTO.selectByColaboratorId(loginController.getLogColaboratorTO().getId());
+
+    }
+
+    public void fillAsManager() throws Exception {
+        felipe = serviceDocsTO.selectByColaboratorManagerId(loginController.getLogColaboratorTO().getId());
+    }
+
+    public void fillAsAdmin() throws Exception {
+        felipe = serviceDocsTO.select();
     }
 
     public void handleFileUpload(FileUploadEvent event) {
@@ -99,7 +159,7 @@ public class DocumentController {
             UploadedFile file = event.getFile();
             if (file != null && file.getContent() != null && file.getContent().length > 0 && file.getFileName() != null) {
                 this.originalPdfFile = file;
-                this.copyFileInFileSystem(file.getInputStream(), "C:\\Users\\david\\OneDrive\\Escritorio\\DocsSavedProjectPegasus", this.originalPdfFile.getFileName());
+                this.copyFileInFileSystem(file.getInputStream(), "D:\\Universidad\\Proyecto Software II\\Projecto\\projectPegasusFrontEnd\\web\\resources\\Files", this.originalPdfFile.getFileName());
                 FacesMessage msg = new FacesMessage("Successful", this.originalPdfFile.getFileName() + " is uploaded.");
                 FacesContext.getCurrentInstance().addMessage(null, msg);
             }
@@ -143,7 +203,6 @@ public class DocumentController {
     public void saveDoc(String docLocation) {
 
         docTO.setColaboratorId(loginController.getLogColaboratorTO().getId());
-        docTO.setType(1);
         docTO.setDocLocation(docLocation);
 
         try {
@@ -178,8 +237,51 @@ public class DocumentController {
         return DefaultStreamedContent.builder()
                 .name(doc.getName())
                 .contentType("application/pdf")
-                .stream(() -> FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream(docTO.getDocLocation()))
+                .stream(() -> FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("resources/Files/" + doc.getName()))
                 .build();
+    }
+
+    public void openSelected() {
+        this.SelectType = true;
+
+    }
+
+    public void closeSelected() {
+        this.SelectType = false;
+    }
+    
+    public String emailById(DocTO docTO) {
+
+        ColaboratorTO colaboratorTO = new ColaboratorTO();
+        colaboratorTO.setId(docTO.getColaboratorId());
+
+        try {
+            return new ServiceColaboratorTO().selectByPk(colaboratorTO).getEmail();
+        } catch (Exception e) {
+            return "";
+        }  
+    }
+    
+    public String nameByType(DocTO docTO) {
+
+        DetailTO detailTO = new DetailTO();
+        detailTO.setId(docTO.getType());
+
+        try {
+            return new ServiceDetailTO().selectByPk(detailTO).getName();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public void showDisable() {
+        enable = true;
+        fillListDocsTO();
+    }
+
+    public void showEnable() {
+        enable = false;
+        fillListDocsTO();
     }
 
 }

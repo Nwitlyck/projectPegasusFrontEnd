@@ -36,6 +36,8 @@ public class ColaboratorController implements Serializable {
 
     private ColaboratorTO logColaborator;
 
+    private boolean enable;
+
     public ServicePersonalDataTO getServicePersonalDataTO() {
         return servicePersonalDataTO;
     }
@@ -133,6 +135,22 @@ public class ColaboratorController implements Serializable {
         }
     }
 
+    public ColaboratorTO getLogColaborator() {
+        return logColaborator;
+    }
+
+    public void setLogColaborator(ColaboratorTO logColaborator) {
+        this.logColaborator = logColaborator;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
+
     //mettods
     @PostConstruct
     public void initianizate() {
@@ -148,13 +166,26 @@ public class ColaboratorController implements Serializable {
     public void fillListColaboratorTO() {
         try {
             if (loginController.logColaborator().getAcceslevel() == 2) {
-                listColaboratorTO = serviceColaboratorTO.selectByState(1);
+                fillAsAdmin();
             } else {
-                listColaboratorTO = serviceColaboratorTO.selectByManagerId(loginController.logColaborator().getId());
+                fillAsManager();
             }
         } catch (Exception e) {
             listColaboratorTO = new ArrayList<ColaboratorTO>();
         }
+    }
+
+    public void fillAsAdmin() throws Exception {
+        if (!this.enable) {
+            listColaboratorTO = serviceColaboratorTO.selectByState(1);
+        } else {
+
+            listColaboratorTO = serviceColaboratorTO.selectByState(0);
+        }
+    }
+
+    public void fillAsManager() throws Exception {
+        listColaboratorTO = serviceColaboratorTO.selectByManagerId(loginController.logColaborator().getId());
     }
 
     public void saveColaboratorTO() {
@@ -199,11 +230,23 @@ public class ColaboratorController implements Serializable {
         }
         initianizate();
     }
+    
+    public void enableColaboratorTO() { 
+        selectedColaboratorTO.setState(1);
+        selectedPersonalData.setState(1);
+        try {
+            serviceColaboratorTO.update(selectedColaboratorTO);
+            servicePersonalDataTO.update(selectedPersonalData);
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to desable calaborator data"));
+        }
+        initianizate();
+    } 
 
-    public void deleteColaboratorTO() {
+    public void deleteColaboratorTO() { 
         try {
             servicePersonalDataTO.delete(selectedPersonalData);
-            serviceColaboratorTO.delete(selectedColaboratorTO);
+            serviceColaboratorTO.delete(selectedColaboratorTO); 
         } catch (Exception e) {
             e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to delete calaborator data"));
@@ -226,7 +269,7 @@ public class ColaboratorController implements Serializable {
         try {
             selectedPersonalData = servicePersonalDataTO.selectByColaboratorId(selectedColaboratorTO.getId());
         } catch (Exception e) {
-            selectedPersonalData = new PersonalDataTO(0, selectedColaboratorTO.getId(), "", null, 0, 1); 
+            selectedPersonalData = new PersonalDataTO(0, selectedColaboratorTO.getId(), "", null, 0, 1);
         }
     }
 
@@ -304,6 +347,39 @@ public class ColaboratorController implements Serializable {
         return false;
     }
 
-}
+    public String managerEmailById(ColaboratorTO colaboratorTO) {
 
-//
+        ColaboratorTO manager = new ColaboratorTO();
+        manager.setId(colaboratorTO.getManagerId());
+
+        try {
+            return serviceColaboratorTO.selectByPk(manager).getEmail();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+    
+    public String nameByAcessLevel(ColaboratorTO colaboratorTO) {
+
+        switch(colaboratorTO.getAcceslevel()){
+            case 0:
+                return "Colaborator";
+            case 1:
+                return "Manager";
+            case 2:
+                return "Admin";
+        }
+        return "";
+    }
+
+    public void showDisable() {
+        enable = true;
+        fillListColaboratorTO();
+    }
+
+    public void showEnable() {
+        enable = false;
+        fillListColaboratorTO();
+    }
+
+}

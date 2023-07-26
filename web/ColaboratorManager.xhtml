@@ -16,7 +16,11 @@
 
                         <p:menuitem value="Profile" outcome="Profile" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="Manager" outcome="ColaboratorManager" icon="pi pi-fw pi-home" rendered="#{loginController.manager}"/>
-                        <p:menuitem value="Disabled" outcome="NonActiveColaborator" icon="pi pi-fw pi-home" rendered="#{loginController.admin}"/>
+                        <p:menuitem value="Documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
+
+                    </p:submenu>
+
+                    <p:submenu label="Days Off" icon="pi pi-fw pi-user">
 
                         <p:submenu label="Request Days Off" icon="pi pi-fw pi-user">
                             <p:menuitem value="Vacations" outcome="Vacations" icon="pi pi-fw pi-user"/>
@@ -24,31 +28,23 @@
                         </p:submenu>
 
                         <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
-                        <p:menuitem value="Manage your documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
+
                         <p:commandButton value="Logout" actionListener="#{logOutController.logOut()}" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+
                     </f:facet>
                 </p:menubar>
             </div>
 
         </h:form>
-        
+
 
         <h:form id = "form" >
-            
+
             <p:growl id="info" showDetail="true"/>
 
-            <p:commandButton value="Add Colaborator" 
-                             icon="pi pi-plus" 
-                             actionListener="#{colaboratorController.openNew}"
-                             update="form manage-Colaborator-content" 
-                             oncomplete="PF('manageColaboratorDialog').show()"
-                             styleClass="ui-button-success">
-                <p:resetInput target="form manage-Colaborator-content"/>
-            </p:commandButton>
-            
             <p:dataTable 
                 var = "colaboratorTO" 
                 value="#{colaboratorController.listColaboratorTO}" 
@@ -61,18 +57,35 @@
 
                 <f:facet name="header">
                     List Colaborator
+                    
+                    
+
+                    <p:commandButton value="Show Disable" actionListener="#{colaboratorController.showDisable}" update="form" rendered="#{loginController.admin and !colaboratorController.enable}"/>
+                    <p:commandButton value="Show Enable" actionListener="#{colaboratorController.showEnable}" update="form" rendered="#{loginController.admin and colaboratorController.enable}"/>
+
+
+
+                    <p:commandButton value="Add Colaborator" 
+                                     icon="pi pi-plus" 
+                                     actionListener="#{colaboratorController.openNew}"
+                                     update="form:manage-Colaborator-content" 
+                                     oncomplete="PF('manageColaboratorDialog').show()"
+                                     styleClass="ui-button-success"
+                                     rendered="#{!colaboratorController.enable}">
+                        <p:resetInput target="form:manage-Colaborator-content"/>
+                    </p:commandButton>
                 </f:facet>
-                
-                <p:column headerText="Manager Id" sortBy="#{colaboratorTO.managerId}" filterBy="#{colaboratorTO.managerId}" filterMatchMode="contains">
-                    <h:outputText value="#{colaboratorTO.managerId}" />
+
+                <p:column headerText="Manager E-mail" sortBy="#{colaboratorController.managerEmailById(colaboratorTO)}" filterBy="#{colaboratorController.managerEmailById(colaboratorTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorController.managerEmailById(colaboratorTO)}" />
                 </p:column>
 
                 <p:column headerText="Email" sortBy="#{colaboratorTO.email}" filterBy="#{colaboratorTO.email}" filterMatchMode="contains">
                     <h:outputText value="#{colaboratorTO.email}" />
                 </p:column>
 
-                <p:column headerText="Acess level" sortBy="#{colaboratorTO.acceslevel}" filterBy="#{colaboratorTO.acceslevel}" filterMatchMode="contains">
-                    <h:outputText value="#{colaboratorTO.acceslevel}" />
+                <p:column headerText="Acess level" sortBy="#{colaboratorController.nameByAcessLevel(colaboratorTO)}" filterBy="#{colaboratorController.nameByAcessLevel(colaboratorTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorController.nameByAcessLevel(colaboratorTO)}" />
                 </p:column>
 
                 <p:column headerText="Hire Date" sortBy="#{colaboratorTO.hireDate}" filterBy="#{colaboratorTO.hireDate}" filterMatchMode="contains">
@@ -82,7 +95,7 @@
                 <p:column headerText="Password" sortBy="#{colaboratorTO.password}" filterBy="#{colaboratorTO.password}" filterMatchMode="contains">
                     <h:outputText value="#{colaboratorTO.password}" />
                 </p:column>
-                
+
                 <p:column headerText="Vacation Days" sortBy="#{colaboratorTO.vacationDays}" filterBy="#{colaboratorTO.vacationDays}" filterMatchMode="contains">
                     <h:outputText value="#{colaboratorTO.vacationDays}" />
                 </p:column>
@@ -94,6 +107,7 @@
                         update=":form:manage-Colaborator-content" 
                         oncomplete="PF('manageColaboratorDialog').show()"
                         styleClass="edit-button rounded-button ui-button-success" 
+                        rendered="#{!colaboratorController.enable}"
                         style="background: lightblue; border: none"
                         process="@this">
                         <f:setPropertyActionListener value="#{colaboratorTO}" target="#{colaboratorController.selectedColaboratorTO}" />
@@ -105,6 +119,18 @@
                         oncomplete="PF('desableColaboratorDialog').show()"
                         styleClass="edit-button rounded-button ui-button-success" 
                         style="background: gray; border: none; left:  .50rem"
+                        rendered="#{!colaboratorController.enable}"
+                        process="@this">
+                        <f:setPropertyActionListener value="#{colaboratorTO}" target="#{colaboratorController.selectedColaboratorTO}" />
+                    </p:commandButton>
+                    <p:commandButton 
+                        value="Enable" 
+                        class="ui--button-success rounded-button"
+                        icon="pi pi-check" 
+                        oncomplete="PF('enableColaboratorDialog').show()"
+                        styleClass="rounded-button ui-button-success"
+                        style="left:  .90rem"
+                        rendered="#{loginController.admin and colaboratorController.enable}"
                         process="@this">
                         <f:setPropertyActionListener value="#{colaboratorTO}" target="#{colaboratorController.selectedColaboratorTO}" />
                     </p:commandButton>
@@ -115,6 +141,7 @@
                         oncomplete="PF('deleteColaboratorDialog').show()"
                         styleClass="rounded-button ui-button-danger" 
                         style="background: red; left:  .90rem"
+                        rendered="#{loginController.admin and colaboratorController.enable}"
                         process="@this">
                         <f:setPropertyActionListener value="#{colaboratorTO}" target="#{colaboratorController.selectedColaboratorTO}" />
                     </p:commandButton>
@@ -129,7 +156,7 @@
             <p:dialog header="Colaborator Detail" showEffect="fade" modal="true"
                       widgetVar="manageColaboratorDialog" responsive="true" id="managerColaborator">
                 <p:outputPanel id="manage-Colaborator-content" class="ui-fluid" >
-                    
+
                     <div class="p-field">
                         <p:outputLabel for="email">E-Mail</p:outputLabel>
                         <p:inputText id="email" value="#{colaboratorController.selectedColaboratorTO.email}"></p:inputText>
@@ -146,10 +173,10 @@
                         <p:outputLabel for="password">Password</p:outputLabel>
                         <p:inputText id="password" value="#{colaboratorController.selectedColaboratorTO.password}" />
                     </div>
-                     <div class="p-field">
+                    <div class="p-field">
                         <p:outputLabel for="name"> Name</p:outputLabel>
                         <p:inputText id="name" value="#{colaboratorController.selectedPersonalData.name}" />
-                        
+
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="birthdate"> Birthdate</p:outputLabel>
@@ -158,7 +185,7 @@
                     <div class="p-field">
                         <p:outputLabel for="emergencycontact">Emergency Contact</p:outputLabel>
                         <p:inputText id="emergencycontact" value="#{colaboratorController.selectedPersonalData.emergencycontact}"><p:keyFilter mask="num" /></p:inputText>
-                        
+
                     </div>
 
                 </p:outputPanel>
@@ -215,7 +242,29 @@
 
             </p:confirmDialog>
 
+            <p:confirmDialog  
+                widgetVar="enableColaboratorDialog" 
+                showEffect="fade" 
+                width="300"
+                message="Enable the colaborator?" 
+                header="Confirm" 
+                severity="warn">
 
+                <p:commandButton 
+                    value="Cancel" 
+                    icon="pi pi-times" 
+                    onclick="PF('enableColaboratorDialog').hide()"
+                    style="float: left"
+                    class="ui-button-secondary"/>
+
+                <p:commandButton 
+                    value="Enable" 
+                    icon="pi pi-check" 
+                    actionListener="#{colaboratorController.enableColaboratorTO}"
+                    update="form" 
+                    process="@this" />
+
+            </p:confirmDialog>
 
             <p:confirmDialog  
                 widgetVar="deleteColaboratorDialog" 
