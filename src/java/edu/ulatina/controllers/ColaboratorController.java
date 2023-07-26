@@ -358,6 +358,19 @@ public class ColaboratorController implements Serializable {
             return "";
         }
     }
+    
+    public String nameByAcessLevel(ColaboratorTO colaboratorTO) {
+
+        switch(colaboratorTO.getAcceslevel()){
+            case 0:
+                return "Colaborator";
+            case 1:
+                return "Manager";
+            case 2:
+                return "Admin";
+        }
+        return "";
+    }
 
     public void showDisable() {
         enable = true;
