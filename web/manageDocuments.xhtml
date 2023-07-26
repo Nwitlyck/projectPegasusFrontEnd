@@ -44,14 +44,6 @@
 
             <p:growl id="messages" showDetail="true"/>
 
-            <p:commandButton value="Add document" 
-                             icon="pi pi-plus" 
-                             update="form manage-Doc-content" 
-                             actionListener="#{documentsController.closeSelected}"
-                             oncomplete="PF('manageDocDialog').show()"
-                             styleClass="ui-button-success">
-                <p:resetInput target="form manage-Doc-content"/>
-            </p:commandButton>
             <p:dataTable 
                 var = "docTODB" 
                 value="#{documentsController.felipe}" 
@@ -64,14 +56,28 @@
 
                 <f:facet name="header">
                     List Docs
+
+                    <p:commandButton value="Show Disable" actionListener="#{documentsController.showDisable()}" update="form" rendered="#{loginController.manager and !documentsController.enable}"/>
+                    <p:commandButton value="Show Enable" actionListener="#{documentsController.showEnable}" update="form" rendered="#{loginController.manager and documentsController.enable}"/>
+
+
+                    <p:commandButton value="Add document" 
+                                     icon="pi pi-plus" 
+                                     update="form:manage-Doc-content" 
+                                     actionListener="#{documentsController.closeSelected}"
+                                     oncomplete="PF('manageDocDialog').show()"
+                                     styleClass="ui-button-success"
+                                     rendered="#{!documentsController.enable}">
+                                     <p:resetInput target="form manage-Doc-content"/>
+                    </p:commandButton>
                 </f:facet>
 
-                <p:column headerText="Id Colaborator" sortBy="#{docTODB.colaboratorId}" filterBy="#{docTODB.colaboratorId}" filterMatchMode="contains">
-                    <h:outputText value="#{docTODB.colaboratorId}" />
+                <p:column rendered="#{loginController.manager and documentsController.enable}" headerText="Colaborator E-mail" sortBy="#{documentsController.emailById(docTODB)}" filterBy="#{documentsController.emailById(docTODB)}" filterMatchMode="contains">
+                    <h:outputText value="#{documentsController.emailById(docTODB)}" />
                 </p:column>
 
-                <p:column headerText="Type" sortBy="#{docTODB.type}" filterBy="#{docTODB.type}" filterMatchMode="contains">
-                    <h:outputText value="#{docTODB.type}" />
+                <p:column headerText="Type" sortBy="#{documentsController.nameByType(docTODB)}" filterBy="#{documentsController.nameByType(docTODB)}" filterMatchMode="contains">
+                    <h:outputText value="#{documentsController.nameByType(docTODB)}" />
                 </p:column>
 
                 <p:column headerText="Doc location" sortBy="#{docTODB.docLocation}" filterBy="#{docTODB.docLocation}" filterMatchMode="contains">
@@ -97,7 +103,8 @@
                         oncomplete="PF('deleteDocDialog').show()"
                         styleClass="rounded-button ui-button-danger" 
                         style="left:  .90rem"
-                        process="@this" 
+                        process="@this"
+                        rendered="#{!documentsController.enable}"
                         update="form">
                         <f:setPropertyActionListener value="#{docTODB}" target="#{documentsController.docTO}" />
                     </p:commandButton>

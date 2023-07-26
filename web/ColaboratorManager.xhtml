@@ -84,8 +84,8 @@
                     <h:outputText value="#{colaboratorTO.email}" />
                 </p:column>
 
-                <p:column headerText="Acess level" sortBy="#{colaboratorTO.acceslevel}" filterBy="#{colaboratorTO.acceslevel}" filterMatchMode="contains">
-                    <h:outputText value="#{colaboratorTO.acceslevel}" />
+                <p:column headerText="Acess level" sortBy="#{colaboratorController.nameByAcessLevel(colaboratorTO)}" filterBy="#{colaboratorController.nameByAcessLevel(colaboratorTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorController.nameByAcessLevel(colaboratorTO)}" />
                 </p:column>
 
                 <p:column headerText="Hire Date" sortBy="#{colaboratorTO.hireDate}" filterBy="#{colaboratorTO.hireDate}" filterMatchMode="contains">
