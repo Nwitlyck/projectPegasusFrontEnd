@@ -6,7 +6,9 @@ import java.io.*;
 import java.nio.file.*;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.*;
 import javax.faces.context.*;
@@ -42,6 +44,10 @@ public class DocumentController {
     private List<DocTO> felipe;
 
     private boolean enable;
+
+    private String typeName;
+
+    private Map<String, Integer> typeMap;
 
     public LoginController getLoginController() {
         return loginController;
@@ -115,23 +121,50 @@ public class DocumentController {
         this.enable = enable;
     }
 
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public Map<String, Integer> getTypeMap() {
+        return typeMap;
+    }
+
+    public void setTypeMap(Map<String, Integer> typeMap) {
+        this.typeMap = typeMap;
+    }
+
     //metods
     @PostConstruct
     public void initianizate() {
         docTO = new DocTO();
         serviceDocsTO = new ServiceDocsTO();
         fillListDocsTO();
+        fillMap();
         this.SelectType = true;
+    }
+
+    public void fillMap() {
+        try {
+            typeMap = new ServiceDetailTO().selectByMasterId(1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            typeMap = new HashMap<>();
+        }
     }
 
     public void fillListDocsTO() {
         try {
-            if(!enable) {
+            if (!enable) {
                 fill();
             } else if (loginController.logColaborator().getAcceslevel() == 1) {
                 fillAsManager();
             } else {
-                fillAsAdmin(); 
+                fillAsAdmin();
             }
 
         } catch (Exception e) {
@@ -203,6 +236,8 @@ public class DocumentController {
     public void saveDoc(String docLocation) {
 
         docTO.setColaboratorId(loginController.getLogColaboratorTO().getId());
+        docTO.setType(Integer.parseInt(typeName));
+        System.out.println(docTO.getType());
         docTO.setDocLocation(docLocation);
 
         try {
@@ -242,14 +277,15 @@ public class DocumentController {
     }
 
     public void openSelected() {
-        this.SelectType = true;
-
+        if (typeName != null && !"".equals(typeName)) {
+            this.SelectType = true;
+        }
     }
 
     public void closeSelected() {
         this.SelectType = false;
     }
-    
+
     public String emailById(DocTO docTO) {
 
         ColaboratorTO colaboratorTO = new ColaboratorTO();
@@ -259,9 +295,9 @@ public class DocumentController {
             return new ServiceColaboratorTO().selectByPk(colaboratorTO).getEmail();
         } catch (Exception e) {
             return "";
-        }  
+        }
     }
-    
+
     public String nameByType(DocTO docTO) {
 
         DetailTO detailTO = new DetailTO();

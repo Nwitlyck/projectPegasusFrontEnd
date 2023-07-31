@@ -43,6 +43,17 @@
         <h:form id="form">
 
             <p:growl id="messages" showDetail="true"/>
+            
+            
+                    <p:commandButton value="Add document" 
+                                     icon="pi pi-plus" 
+                                     update=":form:manage-Doc-content" 
+                                     actionListener="#{documentsController.closeSelected}"
+                                     oncomplete="PF('manageDocDialog').show()"
+                                     styleClass="ui-button-success"
+                                     rendered="#{!documentsController.enable}">
+                                     <p:resetInput target="form manage-Doc-content"/>
+                    </p:commandButton>
 
             <p:dataTable 
                 var = "docTODB" 
@@ -61,15 +72,6 @@
                     <p:commandButton value="Show Enable" actionListener="#{documentsController.showEnable}" update="form" rendered="#{loginController.manager and documentsController.enable}"/>
 
 
-                    <p:commandButton value="Add document" 
-                                     icon="pi pi-plus" 
-                                     update="form:manage-Doc-content" 
-                                     actionListener="#{documentsController.closeSelected}"
-                                     oncomplete="PF('manageDocDialog').show()"
-                                     styleClass="ui-button-success"
-                                     rendered="#{!documentsController.enable}">
-                                     <p:resetInput target="form manage-Doc-content"/>
-                    </p:commandButton>
                 </f:facet>
 
                 <p:column rendered="#{loginController.manager and documentsController.enable}" headerText="Colaborator E-mail" sortBy="#{documentsController.emailById(docTODB)}" filterBy="#{documentsController.emailById(docTODB)}" filterMatchMode="contains">
@@ -119,7 +121,10 @@
 
                     <div class="p-field">
                         <p:outputLabel for="docType">Document Type</p:outputLabel>
-                        <p:inputText id="docType" value="#{documentsController.docTO.type}" disabled="#{documentsController.selectType}"></p:inputText>
+                        <p:selectOneMenu id="docType" value="#{documentsController.typeName}" disabled="#{documentsController.selectType}" >
+                            <f:selectItem itemLabel="Select type" itemValue="" noSelectionOption="true"/>
+                            <f:selectItems value="#{documentsController.typeMap}"/>
+                        </p:selectOneMenu>
                         <p:commandButton value="Confirm" actionListener="#{documentsController.openSelected}" disabled="#{documentsController.selectType}" update="manage-Doc-content"/>
                         <p:commandButton value="Edit" actionListener="#{documentsController.closeSelected()}" disabled="#{!documentsController.selectType}" update="manage-Doc-content"/>
                     </div>

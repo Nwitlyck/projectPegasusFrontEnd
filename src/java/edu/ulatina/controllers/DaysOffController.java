@@ -27,7 +27,7 @@ public class DaysOffController implements Serializable {
     private List<NonWorkingDayTO> listNonWorkingDayTO;
 
     private boolean showRewied;
-    
+
     private NonWorkingDayTO currentNonWorkingDayTO;
 
     @ManagedProperty(value = "#{loginController}")
@@ -108,22 +108,19 @@ public class DaysOffController implements Serializable {
     public void setCurrentNonWorkingDayTO(NonWorkingDayTO currentNonWorkingDayTO) {
         this.currentNonWorkingDayTO = currentNonWorkingDayTO;
     }
-    
-    
-    
-    //Metods
 
+    //Metods
     @PostConstruct
     public void initialize() {
         this.showRewied = false;
         serviceNonWorkingDayTO = new ServiceNonWorkingDayTO();
-        selectedNonWorkingDayTO = new NonWorkingDayTO(0, 0, 0, null, null, 0, 0);
+        selectedNonWorkingDayTO = new NonWorkingDayTO();
         fillListNonWorkingDayTO();
 
     }
 
     public void fillListNonWorkingDayTO() {
-        if (loginController.getLogColaboratorTO().getAcceslevel() == 2) {
+        if (loginController.getLogColaboratorTO().getAcceslevel() == 6) {
             fillAsAdmin();
         } else {
             fillAsManager();
@@ -134,28 +131,24 @@ public class DaysOffController implements Serializable {
 
         try {
             if (!this.showRewied) {
-                listNonWorkingDayTO = serviceNonWorkingDayTO.selectByReview(1);
-            } else {
                 listNonWorkingDayTO = serviceNonWorkingDayTO.selectByReview(0);
+            } else {
+                listNonWorkingDayTO = serviceNonWorkingDayTO.selectByReview(1);
             }
-
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to get data"));
             listNonWorkingDayTO = new ArrayList<NonWorkingDayTO>();
         }
     }
 
     public void fillAsManager() {
-
         try {
             if (!this.showRewied) {
-                listNonWorkingDayTO = serviceNonWorkingDayTO.selectByReviewAndColaboratorManagerId(1,loginController.logColaborator().getId());
-            } else {
                 listNonWorkingDayTO = serviceNonWorkingDayTO.selectByReviewAndColaboratorManagerId(0, loginController.logColaborator().getId());
-            } 
+            } else {
+                listNonWorkingDayTO = serviceNonWorkingDayTO.selectByReviewAndColaboratorManagerId(1, loginController.logColaborator().getId());
+            }
 
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to get data"));
             listNonWorkingDayTO = new ArrayList<NonWorkingDayTO>();
         }
     }
@@ -168,12 +161,12 @@ public class DaysOffController implements Serializable {
         selectedNonWorkingDayTO.setType(2);
         try {
             serviceNonWorkingDayTO.insert(selectedNonWorkingDayTO);
+
         } catch (Exception e) {
+            e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Warning", "There was a problem with the connection unable to add non working day data"));
 
         }
-
-        FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_INFO, "Done", "Vacation requested"));
         fillListNonWorkingDayTO();
 
     }
@@ -191,21 +184,21 @@ public class DaysOffController implements Serializable {
         }
 
         FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_INFO, "Done", "Time off requested"));
-        fillListNonWorkingDayTO(); 
-    }
-
-    public void loadRewied() {
-        this.showRewied = true;
         fillListNonWorkingDayTO();
     }
 
-    public void loadNotRewied() {
+    public void loadRewied() {
         this.showRewied = false;
         fillListNonWorkingDayTO();
     }
 
+    public void loadNotRewied() {
+        this.showRewied = true;
+        fillListNonWorkingDayTO();
+    }
+
     public void openNew() {
-        selectedNonWorkingDayTO = new NonWorkingDayTO(0, 0, 0, null, null, 0, 0);
+        selectedNonWorkingDayTO = new NonWorkingDayTO();
         newNonWorkingDay = true;
     }
 
@@ -269,10 +262,11 @@ public class DaysOffController implements Serializable {
     public void approved() {
         selectedNonWorkingDayTO.setState(1);
         selectedNonWorkingDayTO.setReview(1);
+        selectedNonWorkingDayTO.setFeedback("Enjoy!");
         try {
             serviceNonWorkingDayTO.update(selectedNonWorkingDayTO);
 
-        } catch (Exception e) {
+        } catch (Exception e) { 
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
         }
         fillListNonWorkingDayTO();
@@ -289,16 +283,27 @@ public class DaysOffController implements Serializable {
         }
         fillListNonWorkingDayTO();
     }
-    
-    public String managerEmailById(NonWorkingDayTO nonWorkingDayTO){
-        
+
+    public String managerEmailById(NonWorkingDayTO nonWorkingDayTO) {
+
         ColaboratorTO manager = new ColaboratorTO();
         manager.setId(nonWorkingDayTO.getIdColaborator());
-        
+
         try {
             return new ServiceColaboratorTO().selectByPk(manager).getEmail();
         } catch (Exception e) {
             return "";
         }
+    }
+    
+    public String getStateInString(NonWorkingDayTO nonWorkingDayTO){
+        
+        if(nonWorkingDayTO.getReview()==0){
+            return "Not Reviewed";
+        }
+        if(nonWorkingDayTO.getState()==0){
+            return "Denied";
+        }
+        return "Approved";
     }
 }
