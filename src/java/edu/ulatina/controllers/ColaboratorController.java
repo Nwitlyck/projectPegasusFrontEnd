@@ -37,6 +37,28 @@ public class ColaboratorController implements Serializable {
     private ColaboratorTO logColaborator;
 
     private boolean enable;
+    
+    private int selectedAcessLevel;
+
+    public int getSelectedAcessLevel() {
+        return selectedAcessLevel;
+    }
+
+    public void setSelectedAcessLevel(int selectedAcessLevel) {
+        this.selectedAcessLevel = selectedAcessLevel;
+    }
+    
+    
+
+    private Map<String, Integer> mapAcesslevel;
+
+    public Map<String, Integer> getMapAcesslevel() {
+        return mapAcesslevel;
+    }
+
+    public void setMapAcesslevel(Map<String, Integer> mapAcesslevel) {
+        this.mapAcesslevel = mapAcesslevel;
+    }
 
     public ServicePersonalDataTO getServicePersonalDataTO() {
         return servicePersonalDataTO;
@@ -161,11 +183,23 @@ public class ColaboratorController implements Serializable {
         selectedPersonalData = new PersonalDataTO();
         fillListColaboratorTO();
         sizeListColaboratorTO = listColaboratorTO.size() + "";
+        fillMapAcesslevel();
+    }
+
+    public void fillMapAcesslevel() {
+        int idMasterForAceesslevels = 3;
+
+        try {
+            mapAcesslevel = new ServiceDetailTO().selectByMasterId(idMasterForAceesslevels);
+
+        } catch (Exception e) {
+            mapAcesslevel = new HashMap<>();
+        }
     }
 
     public void fillListColaboratorTO() {
         try {
-            if (loginController.logColaborator().getAcceslevel() == 2) {
+            if (loginController.logColaborator().getAcceslevel() == 6) {
                 fillAsAdmin();
             } else {
                 fillAsManager();
@@ -189,9 +223,26 @@ public class ColaboratorController implements Serializable {
     }
 
     public void saveColaboratorTO() {
+
+        System.out.println("edu.ulatina.controllers.ColaboratorController.saveColaboratorTO()");
+
+        if (logColaborator.getAcceslevel() == 5) {
+            selectedColaboratorTO.setManagerId(logColaborator.getId());
+            selectedColaboratorTO.setAcceslevel(4);
+            System.out.println("asdad");
+        }
+        
+        else{
+            selectedColaboratorTO.setAcceslevel(selectedAcessLevel);
+            selectedColaboratorTO.setManagerId(logColaborator.getId());
+        }
+
         if (verifyNull() || !IsAValidEmail() || !IsEmailNew() || selectedColaboratorDateIsFuture()) {
+            System.out.println("me cago");
             return;
         }
+
+        System.out.println("edu.ulatina.controllers.ColaboratorController.saveColaboratorTO()");
 
         try {
             serviceColaboratorTO.insert(selectedColaboratorTO);
@@ -230,8 +281,8 @@ public class ColaboratorController implements Serializable {
         }
         initianizate();
     }
-    
-    public void enableColaboratorTO() { 
+
+    public void enableColaboratorTO() {
         selectedColaboratorTO.setState(1);
         selectedPersonalData.setState(1);
         try {
@@ -241,12 +292,12 @@ public class ColaboratorController implements Serializable {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to desable calaborator data"));
         }
         initianizate();
-    } 
+    }
 
-    public void deleteColaboratorTO() { 
+    public void deleteColaboratorTO() {
         try {
             servicePersonalDataTO.delete(selectedPersonalData);
-            serviceColaboratorTO.delete(selectedColaboratorTO); 
+            serviceColaboratorTO.delete(selectedColaboratorTO);
         } catch (Exception e) {
             e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to delete calaborator data"));
@@ -255,8 +306,10 @@ public class ColaboratorController implements Serializable {
     }
 
     public void openNew() {
-        selectedColaboratorTO = new ColaboratorTO(0, logColaborator.getId(), "", 0, new java.sql.Date(System.currentTimeMillis()), null, "", 0, 1);
         newColaboratorTO = true;
+        selectedColaboratorTO = new ColaboratorTO();
+        selectedColaboratorTO.setHireDate( new java.sql.Date(System.currentTimeMillis()));
+        selectedColaboratorTO.setState(1);
         selectedPersonalData = new PersonalDataTO(0, 0, "", null, 0, 1);
     }
 
@@ -282,7 +335,7 @@ public class ColaboratorController implements Serializable {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator email is not fill"));
             return true;
         }
-        if (selectedColaboratorTO.getAcceslevel() < 0 || selectedColaboratorTO.getAcceslevel() > 2) {
+        if (selectedColaboratorTO.getAcceslevel() == 0) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator acesslevel is not on range"));
             return true;
         }
@@ -358,18 +411,17 @@ public class ColaboratorController implements Serializable {
             return "";
         }
     }
-    
+
     public String nameByAcessLevel(ColaboratorTO colaboratorTO) {
 
-        switch(colaboratorTO.getAcceslevel()){
-            case 0:
-                return "Colaborator";
-            case 1:
-                return "Manager";
-            case 2:
-                return "Admin";
+        DetailTO detailTO = new DetailTO();
+        detailTO.setId(colaboratorTO.getAcceslevel());
+        try {
+            return new ServiceDetailTO().selectByPk(detailTO).getName();
+
+        } catch (Exception e) {
+            return "";
         }
-        return "";
     }
 
     public void showDisable() {
