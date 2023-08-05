@@ -3,6 +3,7 @@ package edu.ulatina.controllers;
 import edu.ulatina.serviceTO.ServiceNonWorkingDayTO;
 import edu.ulatina.transfereObjects.ColaboratorTO;
 import edu.ulatina.serviceTO.ServiceColaboratorTO;
+import edu.ulatina.serviceTO.ServiceDetailTO;
 import edu.ulatina.transfereObjects.NonWorkingDayTO;
 import java.io.Serializable;
 import java.util.*;
@@ -10,6 +11,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.*;
 import javax.faces.context.*;
 import javax.faces.application.*;
+import org.omg.CORBA.ServiceDetail;
 
 /*
  * @author Nwitlyck
@@ -29,6 +31,11 @@ public class DaysOffController implements Serializable {
     private boolean showRewied;
 
     private NonWorkingDayTO currentNonWorkingDayTO;
+    
+    private Map<String,Integer> map;
+    
+    private List<NonWorkingDayTO> listDaysOff;
+    
 
     @ManagedProperty(value = "#{loginController}")
     private LoginController loginController;
@@ -36,6 +43,23 @@ public class DaysOffController implements Serializable {
     public LoginController getLoginController() {
         return loginController;
     }
+
+    public List<NonWorkingDayTO> getListDaysOff() {
+        return listDaysOff;
+    }
+
+    public void setListDaysOff(List<NonWorkingDayTO> listDaysOff) {
+        this.listDaysOff = listDaysOff;
+    }
+
+    public Map<String, Integer> getMap() {
+        return map;
+    }
+
+    public void setMap(Map<String, Integer> map) {
+        this.map = map;
+    }
+    
 
     public void setLoginController(LoginController loginController) {
         this.loginController = loginController;
@@ -116,7 +140,26 @@ public class DaysOffController implements Serializable {
         serviceNonWorkingDayTO = new ServiceNonWorkingDayTO();
         selectedNonWorkingDayTO = new NonWorkingDayTO();
         fillListNonWorkingDayTO();
+        fillMap();
+        fillDaysOff();
 
+    }
+    
+    public void fillDaysOff(){
+         try {
+            listDaysOff = serviceNonWorkingDayTO.selectByColaboratorId(loginController.logColaborator().getId());
+            
+        } catch (Exception e) {
+            listDaysOff = new ArrayList<>();
+        }
+    }
+    
+    public void fillMap(){
+        try {
+            map = new ServiceDetailTO().selectByMasterId(2);
+            
+        } catch (Exception e) {
+        }
     }
 
     public void fillListNonWorkingDayTO() {
@@ -152,31 +195,15 @@ public class DaysOffController implements Serializable {
             listNonWorkingDayTO = new ArrayList<NonWorkingDayTO>();
         }
     }
-
-    public void saveNonWorkingDayTOAsVacation() {
+    
+    public void save(){
+        
+        selectedNonWorkingDayTO.setIdColaborator(loginController.logColaborator().getId());
         if (!nullVerification() || !colaboratorExist() || !dateIsFuture()) {
             return;
 
         }
-        selectedNonWorkingDayTO.setType(2);
-        try {
-            serviceNonWorkingDayTO.insert(selectedNonWorkingDayTO);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Warning", "There was a problem with the connection unable to add non working day data"));
-
-        }
-        fillListNonWorkingDayTO();
-
-    }
-
-    public void saveNonWorkingDayTOAsTimeOff() {
-        if (!nullVerification() || !colaboratorExist() || !dateIsFuture()) {
-            return;
-
-        }
-        selectedNonWorkingDayTO.setType(3);
+        
         try {
             serviceNonWorkingDayTO.insert(selectedNonWorkingDayTO);
         } catch (Exception e) {
@@ -185,6 +212,7 @@ public class DaysOffController implements Serializable {
 
         FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_INFO, "Done", "Time off requested"));
         fillListNonWorkingDayTO();
+        
     }
 
     public void loadRewied() {
@@ -270,6 +298,7 @@ public class DaysOffController implements Serializable {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
         }
         fillListNonWorkingDayTO();
+        fillDaysOff();
     }
 
     public void disapproved() {
@@ -282,6 +311,7 @@ public class DaysOffController implements Serializable {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be disapproved"));
         }
         fillListNonWorkingDayTO();
+        fillDaysOff();
     }
 
     public String managerEmailById(NonWorkingDayTO nonWorkingDayTO) {
