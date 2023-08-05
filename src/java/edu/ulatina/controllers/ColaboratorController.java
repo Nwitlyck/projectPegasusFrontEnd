@@ -36,6 +36,30 @@ public class ColaboratorController implements Serializable {
 
     private ColaboratorTO logColaborator;
 
+    private boolean enable;
+    
+    private int selectedAcessLevel;
+
+    public int getSelectedAcessLevel() {
+        return selectedAcessLevel;
+    }
+
+    public void setSelectedAcessLevel(int selectedAcessLevel) {
+        this.selectedAcessLevel = selectedAcessLevel;
+    }
+    
+    
+
+    private Map<String, Integer> mapAcesslevel;
+
+    public Map<String, Integer> getMapAcesslevel() {
+        return mapAcesslevel;
+    }
+
+    public void setMapAcesslevel(Map<String, Integer> mapAcesslevel) {
+        this.mapAcesslevel = mapAcesslevel;
+    }
+
     public ServicePersonalDataTO getServicePersonalDataTO() {
         return servicePersonalDataTO;
     }
@@ -133,6 +157,22 @@ public class ColaboratorController implements Serializable {
         }
     }
 
+    public ColaboratorTO getLogColaborator() {
+        return logColaborator;
+    }
+
+    public void setLogColaborator(ColaboratorTO logColaborator) {
+        this.logColaborator = logColaborator;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
+
     //mettods
     @PostConstruct
     public void initianizate() {
@@ -143,24 +183,66 @@ public class ColaboratorController implements Serializable {
         selectedPersonalData = new PersonalDataTO();
         fillListColaboratorTO();
         sizeListColaboratorTO = listColaboratorTO.size() + "";
+        fillMapAcesslevel();
+    }
+
+    public void fillMapAcesslevel() {
+        int idMasterForAceesslevels = 3;
+
+        try {
+            mapAcesslevel = new ServiceDetailTO().selectByMasterId(idMasterForAceesslevels);
+
+        } catch (Exception e) {
+            mapAcesslevel = new HashMap<>();
+        }
     }
 
     public void fillListColaboratorTO() {
         try {
-            if (loginController.logColaborator().getAcceslevel() == 2) {
-                listColaboratorTO = serviceColaboratorTO.selectByState(1);
+            if (loginController.logColaborator().getAcceslevel() == 6) {
+                fillAsAdmin();
             } else {
-                listColaboratorTO = serviceColaboratorTO.selectByManagerId(loginController.logColaborator().getId());
+                fillAsManager();
             }
         } catch (Exception e) {
             listColaboratorTO = new ArrayList<ColaboratorTO>();
         }
     }
 
+    public void fillAsAdmin() throws Exception {
+        if (!this.enable) {
+            listColaboratorTO = serviceColaboratorTO.selectByState(1);
+        } else {
+
+            listColaboratorTO = serviceColaboratorTO.selectByState(0);
+        }
+    }
+
+    public void fillAsManager() throws Exception {
+        listColaboratorTO = serviceColaboratorTO.selectByManagerId(loginController.logColaborator().getId());
+    }
+
     public void saveColaboratorTO() {
+
+        System.out.println("edu.ulatina.controllers.ColaboratorController.saveColaboratorTO()");
+
+        if (logColaborator.getAcceslevel() == 5) {
+            selectedColaboratorTO.setManagerId(logColaborator.getId());
+            selectedColaboratorTO.setAcceslevel(4);
+            System.out.println("asdad");
+        }
+        
+        else{
+            selectedColaboratorTO.setAcceslevel(selectedAcessLevel);
+            selectedColaboratorTO.setManagerId(logColaborator.getId());
+        }
+
         if (verifyNull() || !IsAValidEmail() || !IsEmailNew() || selectedColaboratorDateIsFuture()) {
+            System.out.println("me cago");
             return;
         }
+
+        System.out.println("edu.ulatina.controllers.ColaboratorController.saveColaboratorTO()");
 
         try {
             serviceColaboratorTO.insert(selectedColaboratorTO);
@@ -200,6 +282,18 @@ public class ColaboratorController implements Serializable {
         initianizate();
     }
 
+    public void enableColaboratorTO() {
+        selectedColaboratorTO.setState(1);
+        selectedPersonalData.setState(1);
+        try {
+            serviceColaboratorTO.update(selectedColaboratorTO);
+            servicePersonalDataTO.update(selectedPersonalData);
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to desable calaborator data"));
+        }
+        initianizate();
+    }
+
     public void deleteColaboratorTO() {
         try {
             servicePersonalDataTO.delete(selectedPersonalData);
@@ -212,8 +306,10 @@ public class ColaboratorController implements Serializable {
     }
 
     public void openNew() {
-        selectedColaboratorTO = new ColaboratorTO(0, logColaborator.getId(), "", 0, new java.sql.Date(System.currentTimeMillis()), null, "", 0, 1);
         newColaboratorTO = true;
+        selectedColaboratorTO = new ColaboratorTO();
+        selectedColaboratorTO.setHireDate( new java.sql.Date(System.currentTimeMillis()));
+        selectedColaboratorTO.setState(1);
         selectedPersonalData = new PersonalDataTO(0, 0, "", null, 0, 1);
     }
 
@@ -226,7 +322,7 @@ public class ColaboratorController implements Serializable {
         try {
             selectedPersonalData = servicePersonalDataTO.selectByColaboratorId(selectedColaboratorTO.getId());
         } catch (Exception e) {
-            selectedPersonalData = new PersonalDataTO(0, selectedColaboratorTO.getId(), "", null, 0, 1); 
+            selectedPersonalData = new PersonalDataTO(0, selectedColaboratorTO.getId(), "", null, 0, 1);
         }
     }
 
@@ -239,7 +335,7 @@ public class ColaboratorController implements Serializable {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator email is not fill"));
             return true;
         }
-        if (selectedColaboratorTO.getAcceslevel() < 0 || selectedColaboratorTO.getAcceslevel() > 2) {
+        if (selectedColaboratorTO.getAcceslevel() == 0) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator acesslevel is not on range"));
             return true;
         }
@@ -304,6 +400,38 @@ public class ColaboratorController implements Serializable {
         return false;
     }
 
-}
+    public String managerEmailById(ColaboratorTO colaboratorTO) {
 
-//
+        ColaboratorTO manager = new ColaboratorTO();
+        manager.setId(colaboratorTO.getManagerId());
+
+        try {
+            return serviceColaboratorTO.selectByPk(manager).getEmail();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public String nameByAcessLevel(ColaboratorTO colaboratorTO) {
+
+        DetailTO detailTO = new DetailTO();
+        detailTO.setId(colaboratorTO.getAcceslevel());
+        try {
+            return new ServiceDetailTO().selectByPk(detailTO).getName();
+
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public void showDisable() {
+        enable = true;
+        fillListColaboratorTO();
+    }
+
+    public void showEnable() {
+        enable = false;
+        fillListColaboratorTO();
+    }
+
+}

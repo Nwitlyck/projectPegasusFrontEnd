@@ -16,19 +16,25 @@
 
                         <p:menuitem value="Profile" outcome="Profile" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="Manager" outcome="ColaboratorManager" icon="pi pi-fw pi-home" rendered="#{loginController.manager}"/>
-                        <p:menuitem value="Disabled" outcome="NonActiveColaborator" icon="pi pi-fw pi-home" rendered="#{loginController.admin}"/>
+                        <p:menuitem value="Documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
 
-                        <p:submenu label="Request Days Off" icon="pi pi-fw pi-user">
-                            <p:menuitem value="Vacations" outcome="Vacations" icon="pi pi-fw pi-user"/>
-                            <p:menuitem value="Time Off" outcome="TimeOff" icon="pi pi-fw pi-user"/>
-                        </p:submenu>
+                    </p:submenu>
+
+                    <p:submenu label="Days Off" icon="pi pi-fw pi-user">
+
+                         <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
 
                         <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
-                        <p:menuitem value="Manage your documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
+                    </p:submenu>
+
+                    <p:submenu label="Projects" icon="pi pi-fw pi-user">
+                        <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
+
                         <p:commandButton value="Logout" actionListener="#{logOutController.logOut()}" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+
                     </f:facet>
                 </p:menubar>
             </div>

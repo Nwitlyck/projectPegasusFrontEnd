@@ -6,7 +6,9 @@ import java.io.*;
 import java.nio.file.*;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.*;
 import javax.faces.context.*;
@@ -26,22 +28,26 @@ public class DocumentController {
 
     @ManagedProperty(value = "#{loginController}")
     private LoginController loginController;
-    
-    private boolean SelectType; 
+
+    private boolean SelectType;
 
     private UploadedFile originalPdfFile;
 
     private DocTO docTO;
 
     private ServiceDocsTO serviceDocsTO;
-    
+
     private List<DocTO> listDocTO;
-    
+
     private List<DocTO> listFelipe;
-    
+
     private List<DocTO> felipe;
-    
-    
+
+    private boolean enable;
+
+    private String typeName;
+
+    private Map<String, Integer> typeMap;
 
     public LoginController getLoginController() {
         return loginController;
@@ -107,9 +113,29 @@ public class DocumentController {
         this.felipe = felipe;
     }
 
-    
-    
-    
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public Map<String, Integer> getTypeMap() {
+        return typeMap;
+    }
+
+    public void setTypeMap(Map<String, Integer> typeMap) {
+        this.typeMap = typeMap;
+    }
 
     //metods
     @PostConstruct
@@ -117,17 +143,47 @@ public class DocumentController {
         docTO = new DocTO();
         serviceDocsTO = new ServiceDocsTO();
         fillListDocsTO();
-        this.SelectType=true; 
+        fillMap();
+        this.SelectType = true;
+    }
+
+    public void fillMap() {
+        try {
+            typeMap = new ServiceDetailTO().selectByMasterId(1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            typeMap = new HashMap<>();
+        }
     }
 
     public void fillListDocsTO() {
         try {
-            felipe = serviceDocsTO.selectByColaboratorId(loginController.getLogColaboratorTO().getId());
+            if (!enable) {
+                fill();
+            } else if (loginController.logColaborator().getAcceslevel() == 1) {
+                fillAsManager();
+            } else {
+                fillAsAdmin();
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
             felipe = new ArrayList<DocTO>();
         }
+    }
+
+    public void fill() throws Exception {
+        felipe = serviceDocsTO.selectByColaboratorId(loginController.getLogColaboratorTO().getId());
+
+    }
+
+    public void fillAsManager() throws Exception {
+        felipe = serviceDocsTO.selectByColaboratorManagerId(loginController.getLogColaboratorTO().getId());
+    }
+
+    public void fillAsAdmin() throws Exception {
+        felipe = serviceDocsTO.select();
     }
 
     public void handleFileUpload(FileUploadEvent event) {
@@ -180,6 +236,8 @@ public class DocumentController {
     public void saveDoc(String docLocation) {
 
         docTO.setColaboratorId(loginController.getLogColaboratorTO().getId());
+        docTO.setType(Integer.parseInt(typeName));
+        System.out.println(docTO.getType());
         docTO.setDocLocation(docLocation);
 
         try {
@@ -214,16 +272,52 @@ public class DocumentController {
         return DefaultStreamedContent.builder()
                 .name(doc.getName())
                 .contentType("application/pdf")
-                .stream(() -> FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("resources/Files/"+doc.getName()))
+                .stream(() -> FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("resources/Files/" + doc.getName()))
                 .build();
     }
 
     public void openSelected() {
-        this.SelectType=true;
-        
+        if (typeName != null && !"".equals(typeName)) {
+            this.SelectType = true;
+        }
     }
-    
+
     public void closeSelected() {
-        this.SelectType=false;
+        this.SelectType = false;
     }
+
+    public String emailById(DocTO docTO) {
+
+        ColaboratorTO colaboratorTO = new ColaboratorTO();
+        colaboratorTO.setId(docTO.getColaboratorId());
+
+        try {
+            return new ServiceColaboratorTO().selectByPk(colaboratorTO).getEmail();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public String nameByType(DocTO docTO) {
+
+        DetailTO detailTO = new DetailTO();
+        detailTO.setId(docTO.getType());
+
+        try {
+            return new ServiceDetailTO().selectByPk(detailTO).getName();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public void showDisable() {
+        enable = true;
+        fillListDocsTO();
+    }
+
+    public void showEnable() {
+        enable = false;
+        fillListDocsTO();
+    }
+
 }

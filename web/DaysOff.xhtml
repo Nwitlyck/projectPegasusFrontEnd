@@ -16,19 +16,25 @@
 
                         <p:menuitem value="Profile" outcome="Profile" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="Manager" outcome="ColaboratorManager" icon="pi pi-fw pi-home" rendered="#{loginController.manager}"/>
-                        <p:menuitem value="Disabled" outcome="NonActiveColaborator" icon="pi pi-fw pi-home" rendered="#{loginController.admin}"/>
+                        <p:menuitem value="Documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
 
-                        <p:submenu label="Request Days Off" icon="pi pi-fw pi-user">
-                            <p:menuitem value="Vacations" outcome="Vacations" icon="pi pi-fw pi-user"/>
-                            <p:menuitem value="Time Off" outcome="TimeOff" icon="pi pi-fw pi-user"/>
-                        </p:submenu>
+                    </p:submenu>
+
+                    <p:submenu label="Days Off" icon="pi pi-fw pi-user">
+
+                         <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
 
                         <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
-                        <p:menuitem value="Manage your documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
+                    </p:submenu>
+
+                    <p:submenu label="Projects" icon="pi pi-fw pi-user">
+                        <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
+
                         <p:commandButton value="Logout" actionListener="#{logOutController.logOut()}" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+
                     </f:facet>
                 </p:menubar>
             </div>
@@ -38,7 +44,7 @@
         <h:form id="form">
             <p:growl id="info" showDetail="true"/>
             
-            <p:commandButton value="Request vacations" 
+            <p:commandButton value="Request day(s) off" 
                              icon="pi pi-plus" 
                              actionListener="#{daysOffController.openNew}"
                              update="form manage-Vacations-content" 
@@ -51,9 +57,12 @@
                       widgetVar="manageVacationsDialog" responsive="true" id="nonWorkingDay">
                 <p:outputPanel id="manage-Vacations-content" class="ui-fluid">
 
-                    <div class="p-field">
-                        <p:outputLabel for="idColaborator"> Id Colaborator</p:outputLabel>
-                        <p:inputText id="idColaborator" value="#{daysOffController.selectedNonWorkingDayTO.idColaborator}"><p:keyFilter mask="num"/></p:inputText>
+                   <div class="p-field">
+                        <p:outputLabel for="type">Type</p:outputLabel>
+                        <p:selectOneMenu id="type" value="#{daysOffController.selectedNonWorkingDayTO.type}">
+                            <f:selectItem itemLabel="Select type" itemValue="" noSelectionOption="true"/>
+                            <f:selectItems value="#{daysOffController.map}"/>
+                        </p:selectOneMenu>
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="initialDate">Initial Date</p:outputLabel>
@@ -87,12 +96,47 @@
                         value="Save" 
                         icon="pi pi-check" 
                         rendered="#{daysOffController.newNonWorkingDay}"
-                        actionListener="#{daysOffController.saveNonWorkingDayTOAsVacation}"
+                        actionListener="#{daysOffController.save}"
                         update="form manage-Vacations-content" 
                         process="manage-Vacations-content @this" />
 
                 </f:facet>
             </p:dialog>
+            
+            <p:dataTable 
+                var = "NonWorkingDayTO" 
+                value="#{daysOffController.listDaysOff}" 
+                paginator="true" 
+                paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                paginatorPosition="bottom"
+                rows="5" 
+                rowsPerPageTemplate="5, 10, 20, 30, 40, 50" 
+                emptyMessage="There is no data">
+
+                <f:facet name="header">
+                    Days Off list
+                </f:facet>
+
+                <p:column headerText="Type" sortBy="#{NonWorkingDayTO.type}" filterBy="#{NonWorkingDayTO.type}" filterMatchMode="contains">
+                    <h:outputText value="#{NonWorkingDayTO.type}" />
+                </p:column>
+
+                <p:column headerText="Initial Date" sortBy="#{NonWorkingDayTO.initialDate}" filterBy="#{NonWorkingDayTO.initialDate}" filterMatchMode="contains">
+                    <h:outputText value="#{NonWorkingDayTO.initialDate}" />
+                </p:column>
+
+                <p:column headerText="Final Date" sortBy="#{NonWorkingDayTO.finalDate}" filterBy="#{NonWorkingDayTO.finalDate}" filterMatchMode="contains">
+                    <h:outputText value="#{NonWorkingDayTO.finalDate}" />
+                </p:column>
+                
+                <p:column visible="#{daysOffController.showRewied}"  headerText="Feedback" sortBy="#{NonWorkingDayTO.feedback}" filterBy="#{NonWorkingDayTO.feedback}" filterMatchMode="contains">
+                    <h:outputText value="#{NonWorkingDayTO.feedback}" />
+                </p:column>
+                
+                <p:column headerText="State" sortBy="#{daysOffController.getStateInString(NonWorkingDayTO)}" filterBy="#{daysOffController.getStateInString(NonWorkingDayTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{daysOffController.getStateInString(NonWorkingDayTO)}" />
+                </p:column>
+            </p:dataTable>
 
         </h:form>
     </h:body>
