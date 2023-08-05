@@ -68,11 +68,11 @@
                     <p:commandButton value="Add Colaborator" 
                                      icon="pi pi-plus" 
                                      actionListener="#{colaboratorController.openNew}"
-                                     update="form:manage-Colaborator-content" 
+                                     update=":form:managerColaborator" 
                                      oncomplete="PF('manageColaboratorDialog').show()"
                                      styleClass="ui-button-success"
                                      rendered="#{!colaboratorController.enable}">
-                        <p:resetInput target="form:manage-Colaborator-content"/>
+                        <p:resetInput target=":form:manage-Colaborator-content"/>
                     </p:commandButton>
                 </f:facet>
 
@@ -161,9 +161,12 @@
                         <p:outputLabel for="email">E-Mail</p:outputLabel>
                         <p:inputText id="email" value="#{colaboratorController.selectedColaboratorTO.email}"></p:inputText>
                     </div>
-                    <div class="p-field">
-                        <p:outputLabel for="acceslevel">Access level</p:outputLabel>
-                        <p:inputText id="acceslevel" value="#{colaboratorController.selectedColaboratorTO.acceslevel}"><p:keyFilter mask="num" /></p:inputText>
+                    <div class="p-field">                                               
+                        <p:outputLabel for="task" rendered="#{loginController.admin}">Task</p:outputLabel>
+                        <p:selectOneMenu id="task" value="#{colaboratorController.selectedAcessLevel}" rendered="#{loginController.admin}">
+                            <f:selectItem itemLabel="Select acesslevel" itemValue="" noSelectionOption="true"/>
+                            <f:selectItems value="#{colaboratorController.mapAcesslevel}"/>
+                        </p:selectOneMenu>
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="hireDate">Hire Date</p:outputLabel>
