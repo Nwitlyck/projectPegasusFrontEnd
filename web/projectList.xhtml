@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui" xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Pegasus</title>
+    </h:head>
+    <h:body>
+        <h:form id="menu">
+
+            <div class="card">
+                <p:menubar>
+                    <p:menuitem value="Main" outcome="Main" icon="pi pi-fw pi-home"/>
+
+                    <p:submenu label="Colaborator" icon="pi pi-fw pi-user">
+
+                        <p:menuitem value="Profile" outcome="Profile" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Manager" outcome="ColaboratorManager" icon="pi pi-fw pi-home" rendered="#{loginController.manager}"/>
+                        <p:menuitem value="Documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
+
+                    </p:submenu>
+
+                    <p:submenu label="Days Off" icon="pi pi-fw pi-user">
+
+                         <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
+
+                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
+                    </p:submenu>
+
+                    <p:submenu label="Projects" icon="pi pi-fw pi-user">
+                        <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project List" outcome="projectList" icon="pi pi-fw pi-user"/>
+
+                    </p:submenu>
+
+                    <f:facet name="options">
+
+                        <p:commandButton value="Logout" actionListener="#{logOutController.logOut()}" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+
+                    </f:facet>
+                </p:menubar>
+            </div>
+
+        </h:form>
+
+        <h:form id="form">
+
+            <p:commandButton value="Add Project" 
+                             icon="pi pi-plus" 
+                             update=":form:manageProjects" 
+                             oncomplete="PF('manageProjectsDialog').show()"
+                             styleClass="ui-button-success">
+                             
+                <p:resetInput target="form manage-Projects-content"/>
+            </p:commandButton>
+
+
+            <p:dataTable 
+                var = "projects" 
+                value="#{ProjectListController.listProjectsTO}" 
+                paginator="true" 
+                paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                paginatorPosition="bottom"
+                rows="5" 
+                rowsPerPageTemplate="5, 10, 20, 30, 40, 50" 
+                emptyMessage="There is no data">
+
+                <f:facet name="header">
+                    Project List
+
+                </f:facet>
+
+                <p:column headerText="Project Name" sortBy="#{projects.name}" filterBy="#{projects.name}" filterMatchMode="contains">
+                    <h:outputText value="#{projects.name}" />
+                </p:column>
+                
+                <p:column headerText="Initial Date" sortBy="#{projects.initialdate}" filterBy="#{projects.initialdate}" filterMatchMode="contains">
+                    <h:outputText value="#{projects.initialdate}" />
+                </p:column>
+                
+                <p:column headerText="Final Date" sortBy="#{projects.finaldate}" filterBy="#{projects.finaldate}" filterMatchMode="contains">
+                    <h:outputText value="#{projects.finaldate}" />
+                </p:column>
+                <p:column headerText="State" sortBy="#{ProjectListController.getState(projects)}" filterBy="#{ProjectListController.getState(projects)}" filterMatchMode="contains">
+                    <h:outputText value="#{ProjectListController.getState(projects) }" />
+                </p:column>
+                
+
+            </p:dataTable>
+
+
+
+            <p:dialog header="Projects Detail" showEffect="fade" modal="true"
+                      widgetVar="manageProjectsDialog" responsive="true" id="manageProjects" closable="false">
+                <p:outputPanel id="manage-Projects-content" class="ui-fluid">
+
+                    <p:growl id="messages" showDetail="true"/>
+
+
+                    
+                    <div class="p-field">
+                        <p:outputLabel for="name">Name</p:outputLabel>
+                        <p:inputText id="name" value="#{ProjectListController.projectsTO.name}"> </p:inputText>
+                    </div>
+                    
+
+                </p:outputPanel>
+
+
+
+                <f:facet name="footer">
+
+                    <p:commandButton 
+                        value="Cancel" 
+                        icon="pi pi-times" 
+                        onclick="PF('manageProjectsDialog').hide()"
+                        style="float: left"
+                        class="ui-button-secondary"/>
+
+
+
+
+                    <p:commandButton 
+                        value="Save" 
+                        icon="pi pi-check" 
+                        actionListener="#{ProjectListController.save}"
+                        update="manage-Projects-content"
+                        process="manage-Projects-content @this" />
+
+
+                </f:facet>
+            </p:dialog>
+
+        </h:form>
+    </h:body>
+</html>
+
