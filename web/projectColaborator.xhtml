@@ -42,6 +42,44 @@
             </div>
 
         </h:form>
+        
+        <h:form id="form">
+            <p:dataTable 
+                var = "colaboratorHasProjects" 
+                value="#{ProjectColaboratorController.listColaboratorHasProjects}" 
+                paginator="true" 
+                paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                paginatorPosition="bottom"
+                rows="5" 
+                rowsPerPageTemplate="5, 10, 20, 30, 40, 50" 
+                emptyMessage="There is no data">
+
+                <f:facet name="header">
+                    My Projects
+                </f:facet>
+
+                <p:column headerText="Project ID" sortBy="#{colaboratorHasProjects.idProject}" filterBy="#{colaboratorHasProjects.idProject}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorHasProjects.idProject}" />
+                </p:column>
+
+                <p:column headerText="Total Time" sortBy="#{colaboratorHasProjects.totalTime}" filterBy="#{colaboratorHasProjects.totalTime}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorHasProjects.totalTime}" />
+                </p:column>
+
+                <p:column headerText="Initial Date" sortBy="#{colaboratorHasProjects.initialDate}" filterBy="#{colaboratorHasProjects.initialDate}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorHasProjects.initialDate}" />
+                </p:column>
+
+                <p:column headerText="Final Date" sortBy="#{colaboratorHasProjects.finalDate}" filterBy="#{colaboratorHasProjects.finalDate}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorHasProjects.finalDate}" />
+                </p:column>
+                
+                <p:column headerText="State" sortBy="#{colaboratorHasProjects.state}" filterBy="#{colaboratorHasProjects.state}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorHasProjects.state}" />
+                </p:column>
+                
+            </p:dataTable>
+        </h:form>
     </h:body>
 </html>
 
