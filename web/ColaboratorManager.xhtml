@@ -22,12 +22,13 @@
 
                     <p:submenu label="Days Off" icon="pi pi-fw pi-user">
 
-                        <p:submenu label="Request Days Off" icon="pi pi-fw pi-user">
-                            <p:menuitem value="Vacations" outcome="Vacations" icon="pi pi-fw pi-user"/>
-                            <p:menuitem value="Time Off" outcome="TimeOff" icon="pi pi-fw pi-user"/>
-                        </p:submenu>
+                         <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
 
                         <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
+                    </p:submenu>
+
+                    <p:submenu label="Projects" icon="pi pi-fw pi-user">
+                        <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
@@ -68,11 +69,11 @@
                     <p:commandButton value="Add Colaborator" 
                                      icon="pi pi-plus" 
                                      actionListener="#{colaboratorController.openNew}"
-                                     update="form:manage-Colaborator-content" 
+                                     update=":form:managerColaborator" 
                                      oncomplete="PF('manageColaboratorDialog').show()"
                                      styleClass="ui-button-success"
                                      rendered="#{!colaboratorController.enable}">
-                        <p:resetInput target="form:manage-Colaborator-content"/>
+                        <p:resetInput target=":form:manage-Colaborator-content"/>
                     </p:commandButton>
                 </f:facet>
 
@@ -84,8 +85,8 @@
                     <h:outputText value="#{colaboratorTO.email}" />
                 </p:column>
 
-                <p:column headerText="Acess level" sortBy="#{colaboratorTO.acceslevel}" filterBy="#{colaboratorTO.acceslevel}" filterMatchMode="contains">
-                    <h:outputText value="#{colaboratorTO.acceslevel}" />
+                <p:column headerText="Acess level" sortBy="#{colaboratorController.nameByAcessLevel(colaboratorTO)}" filterBy="#{colaboratorController.nameByAcessLevel(colaboratorTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{colaboratorController.nameByAcessLevel(colaboratorTO)}" />
                 </p:column>
 
                 <p:column headerText="Hire Date" sortBy="#{colaboratorTO.hireDate}" filterBy="#{colaboratorTO.hireDate}" filterMatchMode="contains">
@@ -161,9 +162,12 @@
                         <p:outputLabel for="email">E-Mail</p:outputLabel>
                         <p:inputText id="email" value="#{colaboratorController.selectedColaboratorTO.email}"></p:inputText>
                     </div>
-                    <div class="p-field">
-                        <p:outputLabel for="acceslevel">Access level</p:outputLabel>
-                        <p:inputText id="acceslevel" value="#{colaboratorController.selectedColaboratorTO.acceslevel}"><p:keyFilter mask="num" /></p:inputText>
+                    <div class="p-field">                                               
+                        <p:outputLabel for="task" rendered="#{loginController.admin}">Task</p:outputLabel>
+                        <p:selectOneMenu id="task" value="#{colaboratorController.selectedAcessLevel}" rendered="#{loginController.admin}">
+                            <f:selectItem itemLabel="Select acesslevel" itemValue="" noSelectionOption="true"/>
+                            <f:selectItems value="#{colaboratorController.mapAcesslevel}"/>
+                        </p:selectOneMenu>
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="hireDate">Hire Date</p:outputLabel>

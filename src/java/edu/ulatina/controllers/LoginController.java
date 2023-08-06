@@ -150,8 +150,8 @@ public class LoginController implements Serializable {
             return false;
         }
 
-        if (logColaboratorTO.getAcceslevel() == 0) {
-            return false;
+        if (logColaboratorTO.getAcceslevel() == 5) {
+            return true;
         }
 
         return true;
@@ -162,7 +162,7 @@ public class LoginController implements Serializable {
             return false;
         }
 
-        if (logColaboratorTO.getAcceslevel() != 2) {
+        if (logColaboratorTO.getAcceslevel() != 6) {
             return false;
         }
 

@@ -22,12 +22,13 @@
 
                     <p:submenu label="Days Off" icon="pi pi-fw pi-user">
 
-                        <p:submenu label="Request Days Off" icon="pi pi-fw pi-user">
-                            <p:menuitem value="Vacations" outcome="Vacations" icon="pi pi-fw pi-user"/>
-                            <p:menuitem value="Time Off" outcome="TimeOff" icon="pi pi-fw pi-user"/>
-                        </p:submenu>
+                         <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
 
                         <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
+                    </p:submenu>
+
+                    <p:submenu label="Projects" icon="pi pi-fw pi-user">
+                        <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
@@ -61,7 +62,7 @@
                         value="Show not rewied" 
                         styleClass="ui-button-secondary" 
                         actionListener="#{daysOffController.loadRewied()}" 
-                        rendered="#{!daysOffController.showRewied}"
+                        rendered="#{daysOffController.showRewied}"
                         process="@this" 
                         update="form"/>
 
@@ -69,7 +70,7 @@
                         value="Show rewied" 
                         styleClass="ui-button-secondary" 
                         actionListener="#{daysOffController.loadNotRewied()}"  
-                        rendered="#{daysOffController.showRewied}"
+                        rendered="#{!daysOffController.showRewied}"
                         process="@this" 
                         update="form"/>
                 </f:facet>
@@ -89,8 +90,17 @@
                 <p:column headerText="Final Date" sortBy="#{NonWorkingDayTO.finalDate}" filterBy="#{NonWorkingDayTO.finalDate}" filterMatchMode="contains">
                     <h:outputText value="#{NonWorkingDayTO.finalDate}" />
                 </p:column>
+                
+                <p:column visible="#{daysOffController.showRewied}"  headerText="Feedback" sortBy="#{NonWorkingDayTO.feedback}" filterBy="#{NonWorkingDayTO.feedback}" filterMatchMode="contains">
+                    <h:outputText value="#{NonWorkingDayTO.feedback}" />
+                </p:column>
+                
+                <p:column headerText="State" sortBy="#{daysOffController.getStateInString(NonWorkingDayTO)}" filterBy="#{daysOffController.getStateInString(NonWorkingDayTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{daysOffController.getStateInString(NonWorkingDayTO)}" />
+                </p:column>
 
-                <p:column rendered="#{daysOffController.showRewied}">
+                
+                <p:column rendered="#{!daysOffController.showRewied}">
                     <p:commandButton 
                         class="ui-button-warning rounded-button"
                         icon="pi pi-check" 
@@ -144,9 +154,18 @@
                 widgetVar="disaproveDialog" 
                 showEffect="fade" 
                 width="300"
-                message="Are you sure?" 
+                message="Tell me why?" 
                 header="Confirm" 
                 severity="warn">
+                
+                <p:outputPanel id="manage-NonWorkingDay-content" class="ui-fluid" >
+                    
+                    <div class="p-field">
+                        <p:outputLabel for="feedback">Feedback</p:outputLabel>
+                        <p:inputText id="feedback" value="#{daysOffController.selectedNonWorkingDayTO.feedback}"></p:inputText>
+                    </div>
+                    
+                </p:outputPanel>
 
                 <p:commandButton 
                     value="Cancel" 
@@ -160,9 +179,10 @@
                     icon="pi pi-check" 
                     actionListener="#{daysOffController.disapproved}"
                     update="form" 
-                    process="@this" />
+                    process="manage-NonWorkingDay-content @this" />
 
             </p:confirmDialog>
+            
         </h:form> 
     </h:body>
 </html>
