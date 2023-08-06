@@ -173,6 +173,7 @@ public class ColaboratorController implements Serializable {
         this.enable = enable;
     }
 
+    
     //mettods
     @PostConstruct
     public void initianizate() {
@@ -229,7 +230,6 @@ public class ColaboratorController implements Serializable {
         if (logColaborator.getAcceslevel() == 5) {
             selectedColaboratorTO.setManagerId(logColaborator.getId());
             selectedColaboratorTO.setAcceslevel(4);
-            System.out.println("asdad");
         }
         
         else{
@@ -238,11 +238,10 @@ public class ColaboratorController implements Serializable {
         }
 
         if (verifyNull() || !IsAValidEmail() || !IsEmailNew() || selectedColaboratorDateIsFuture()) {
-            System.out.println("me cago");
+            
             return;
         }
 
-        System.out.println("edu.ulatina.controllers.ColaboratorController.saveColaboratorTO()");
 
         try {
             serviceColaboratorTO.insert(selectedColaboratorTO);
