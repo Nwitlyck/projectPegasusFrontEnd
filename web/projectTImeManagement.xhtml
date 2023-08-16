@@ -51,6 +51,13 @@
                              styleClass="ui-button-success">
                 <p:resetInput target="form manage-Task-content"/>
             </p:commandButton>
+            
+            
+            <p:selectOneMenu id="project" value="#{ProjectTimeManagementController.idProject}" style="width:150px">
+                <p:ajax listener="#{ProjectTimeManagementController.fillList()}" update="form"/>
+                <f:selectItem itemLabel="Select a project" itemValue="" noSelectionOption="true"/>
+                <f:selectItems value="#{ProjectTimeManagementController.mapProjects}"/>
+            </p:selectOneMenu>
 
 
             <p:dataTable 

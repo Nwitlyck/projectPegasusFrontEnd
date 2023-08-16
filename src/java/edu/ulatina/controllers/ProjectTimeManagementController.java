@@ -21,6 +21,8 @@ public class ProjectTimeManagementController {
     private LoginController loginController;
 
     private InvestedTimeTO investedTimeTO;
+    
+    private Map<String, Integer> mapProjects;
 
     private List<InvestedTimeTO> listInvestedTimeTO;
 
@@ -30,6 +32,26 @@ public class ProjectTimeManagementController {
 
     private Map<String, Integer> mapTask;
     
+    private int idProject;
+   
+
+    public int getIdProject() {
+        return idProject;
+    }
+
+    public void setIdProject(int idProject) {
+        this.idProject = idProject;
+    }
+    
+    
+    
+    public Map<String, Integer> getMapProjects() {
+        return mapProjects;
+    }
+
+    public void setMapProjects(Map<String, Integer> mapProjects) {
+        this.mapProjects = mapProjects;
+    }
     
 
     public LoginController getLoginController() {
@@ -84,14 +106,20 @@ public class ProjectTimeManagementController {
     public void initianizate() {
         serviceInvestedTime = new ServiceInvestedTime();
         investedTimeTO = new InvestedTimeTO();
+        fillListMapProject();
         fillList();
         fillMapTask();
     }
 
     public void fillList() {
+        if(idProject == 0) return; 
+        
         try {
-            listInvestedTimeTO = serviceInvestedTime.selectById(1);//se escribe un 1  mientras  se crean mas proyectos
-            // sale de datos colab_has_project en bd
+            ColaboratorHasProjectTO colaboratorHasProjectTO = new  ColaboratorHasProjectTO();
+            colaboratorHasProjectTO.setIdProject(idProject);
+            colaboratorHasProjectTO.setIdColaborator(loginController.logColaborator().getId());
+            listInvestedTimeTO = serviceInvestedTime.selectById(new ServiceColaboratorHasProjectTO().selectByPk(colaboratorHasProjectTO).getId());//se escribe un 1  mientras  se crean mas proyectos
+            // sale de datos colab_has_project en bd           
         } catch (Exception e) {
             e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem with the connection unable to save data"));
@@ -107,6 +135,18 @@ public class ProjectTimeManagementController {
 
         } catch (Exception e) {
             mapTask = new HashMap<>();
+  
+        }
+    } 
+    
+    
+    
+    public void fillListMapProject() {
+        try {
+            mapProjects = new ServiceProjectsTO().selectUsingMap();
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem with the connection unable to get data"));
+            mapProjects = new HashMap<>();
         }
     }
 
