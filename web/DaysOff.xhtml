@@ -29,6 +29,8 @@
 
                     <p:submenu label="Projects" icon="pi pi-fw pi-user">
                         <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
@@ -97,7 +99,7 @@
                         icon="pi pi-check" 
                         rendered="#{daysOffController.newNonWorkingDay}"
                         actionListener="#{daysOffController.save}"
-                        update="form manage-Vacations-content" 
+                        update="manage-Vacations-content, form" 
                         process="manage-Vacations-content @this" />
 
                 </f:facet>
@@ -116,9 +118,8 @@
                 <f:facet name="header">
                     Days Off list
                 </f:facet>
-
-                <p:column headerText="Type" sortBy="#{NonWorkingDayTO.type}" filterBy="#{NonWorkingDayTO.type}" filterMatchMode="contains">
-                    <h:outputText value="#{NonWorkingDayTO.type}" />
+                <p:column headerText="Type" sortBy="#{daysOffController.getTypeInString(NonWorkingDayTO)}" filterBy="#{daysOffController.getTypeInString(NonWorkingDayTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{daysOffController.getTypeInString(NonWorkingDayTO)}" />
                 </p:column>
 
                 <p:column headerText="Initial Date" sortBy="#{NonWorkingDayTO.initialDate}" filterBy="#{NonWorkingDayTO.initialDate}" filterMatchMode="contains">

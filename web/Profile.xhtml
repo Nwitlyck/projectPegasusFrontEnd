@@ -29,6 +29,8 @@
 
                     <p:submenu label="Projects" icon="pi pi-fw pi-user">
                         <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
