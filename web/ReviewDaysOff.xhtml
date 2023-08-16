@@ -29,6 +29,8 @@
 
                     <p:submenu label="Projects" icon="pi pi-fw pi-user">
                         <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
@@ -79,8 +81,8 @@
                     <h:outputText value="#{daysOffController.managerEmailById(NonWorkingDayTO)}" />
                 </p:column>
 
-                <p:column headerText="Type" sortBy="#{NonWorkingDayTO.type}" filterBy="#{NonWorkingDayTO.type}" filterMatchMode="contains">
-                    <h:outputText value="#{NonWorkingDayTO.type}" />
+                <p:column headerText="Type" sortBy="#{daysOffController.getTypeInString(NonWorkingDayTO)}" filterBy="#{daysOffController.getTypeInString(NonWorkingDayTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{daysOffController.getTypeInString(NonWorkingDayTO)}" />
                 </p:column>
 
                 <p:column headerText="Initial Date" sortBy="#{NonWorkingDayTO.initialDate}" filterBy="#{NonWorkingDayTO.initialDate}" filterMatchMode="contains">
