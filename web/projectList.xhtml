@@ -44,7 +44,8 @@
         </h:form>
 
         <h:form id="form">
-
+            
+            
             <p:growl id="messages" showDetail="true"/>
 
 
@@ -88,9 +89,82 @@
                 <p:column headerText="State" sortBy="#{ProjectListController.getStateForProject(projects)}" filterBy="#{ProjectListController.getStateForProject(projects)}" filterMatchMode="contains">
                     <h:outputText value="#{ProjectListController.getStateForProject(projects)}" />
                 </p:column>
+                
+                <p:column>
+                    <p:commandButton 
+                        class="ui-button-warning rounded-button"
+                        icon="pi pi-check" 
+                        oncomplete="PF('completedDialog').show()" 
+                        styleClass="rounded-button" 
+                        style="left:  .90rem; background: green"
+                        process="@this" 
+                        update="form">
+                        <f:setPropertyActionListener value="#{projects}" target="#{ProjectListController.selectedProjectsTO}"/>
+                    </p:commandButton>
+
+                    <p:commandButton   
+                        class="ui-button-warning rounded-button"
+                        icon="pi pi-times" 
+                        oncomplete="PF('droppedDialog').show()"
+                        styleClass="rounded-button ui-button-danger" 
+                        style="left:  .90rem;"
+                        process="@this" 
+                        update="form"> 
+                        <f:setPropertyActionListener value="#{projects}" target="#{ProjectListController.selectedProjectsTO}"/> 
+                    </p:commandButton>
+
+                </p:column>
 
 
             </p:dataTable>
+            
+            <p:confirmDialog  
+                widgetVar="completedDialog" 
+                showEffect="fade" 
+                width="300"
+                message="Are you sure?" 
+                header="Confirm" 
+                severity="warn">
+
+                <p:commandButton 
+                    value="Cancel" 
+                    icon="pi pi-times" 
+                    onclick="PF('completedDialog').hide()"
+                    style="float: left"
+                    class="ui-button-secondary"/>
+
+                <p:commandButton 
+                    value="Aprove" 
+                    icon="pi pi-check" 
+                    actionListener="#{ProjectListController.completed}"
+                    update="form" 
+                    process="@this" />
+
+            </p:confirmDialog>
+            
+            <p:confirmDialog  
+                widgetVar="droppedDialog" 
+                showEffect="fade" 
+                width="300"
+                message="Are you sure?" 
+                header="Confirm" 
+                severity="warn">
+
+                <p:commandButton 
+                    value="Cancel" 
+                    icon="pi pi-times" 
+                    onclick="PF('droppedDialog').hide()"
+                    style="float: left"
+                    class="ui-button-secondary"/>
+
+                <p:commandButton 
+                    value="Dropped" 
+                    icon="pi pi-check" 
+                    actionListener="#{ProjectListController.dropped}"
+                    update="form" 
+                    process="@this" />
+
+            </p:confirmDialog>
 
             <p:dialog header="Projects Detail" showEffect="fade" modal="true"
                       widgetVar="manageProjectsDialog" responsive="true" id="manageProjects" closable="false" resizable="false" draggable="false" position="center">
