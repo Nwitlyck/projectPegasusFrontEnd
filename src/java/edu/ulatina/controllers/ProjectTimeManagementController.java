@@ -15,13 +15,14 @@ import org.primefaces.context.PrimeFacesContext;
  * @author isalozano
  */
 @ManagedBean(name = "ProjectTimeManagementController")
+@ViewScoped
 public class ProjectTimeManagementController {
 
     @ManagedProperty(value = "#{loginController}")
     private LoginController loginController;
 
     private InvestedTimeTO investedTimeTO;
-    
+
     private Map<String, Integer> mapProjects;
 
     private List<InvestedTimeTO> listInvestedTimeTO;
@@ -31,9 +32,8 @@ public class ProjectTimeManagementController {
     private int idDetailSelected;
 
     private Map<String, Integer> mapTask;
-    
+
     private int idProject;
-   
 
     public int getIdProject() {
         return idProject;
@@ -42,9 +42,7 @@ public class ProjectTimeManagementController {
     public void setIdProject(int idProject) {
         this.idProject = idProject;
     }
-    
-    
-    
+
     public Map<String, Integer> getMapProjects() {
         return mapProjects;
     }
@@ -52,7 +50,6 @@ public class ProjectTimeManagementController {
     public void setMapProjects(Map<String, Integer> mapProjects) {
         this.mapProjects = mapProjects;
     }
-    
 
     public LoginController getLoginController() {
         return loginController;
@@ -101,6 +98,15 @@ public class ProjectTimeManagementController {
     public void setListInvestedTimeTO(List<InvestedTimeTO> listInvestedTimeTO) {
         this.listInvestedTimeTO = listInvestedTimeTO;
     }
+    
+    public int getProjectHasColaborator() throws Exception {
+        ColaboratorHasProjectTO colaboratorHasProjectTO = new ColaboratorHasProjectTO();
+        colaboratorHasProjectTO.setIdProject(idProject);
+        colaboratorHasProjectTO.setIdColaborator(loginController.logColaborator().getId());
+        int idProjectHasColaborator = new ServiceColaboratorHasProjectTO().selectByPk(colaboratorHasProjectTO).getId();
+        return idProjectHasColaborator;
+    }
+
 
     @PostConstruct
     public void initianizate() {
@@ -112,13 +118,12 @@ public class ProjectTimeManagementController {
     }
 
     public void fillList() {
-        if(idProject == 0) return; 
-        
+        if (idProject == 0) {
+            return;
+        }
+
         try {
-            ColaboratorHasProjectTO colaboratorHasProjectTO = new  ColaboratorHasProjectTO();
-            colaboratorHasProjectTO.setIdProject(idProject);
-            colaboratorHasProjectTO.setIdColaborator(loginController.logColaborator().getId());
-            listInvestedTimeTO = serviceInvestedTime.selectById(new ServiceColaboratorHasProjectTO().selectByPk(colaboratorHasProjectTO).getId());//se escribe un 1  mientras  se crean mas proyectos
+            listInvestedTimeTO = serviceInvestedTime.selectById(getProjectHasColaborator() );//se llava auna funcion que obtiene el id colaborator has project
             // sale de datos colab_has_project en bd           
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,18 +134,16 @@ public class ProjectTimeManagementController {
 
     public void fillMapTask() {
         int idMasterForTask = 4;
-        
+
         try {
             mapTask = new ServiceDetailTO().selectByMasterId(idMasterForTask);
 
         } catch (Exception e) {
             mapTask = new HashMap<>();
-  
+
         }
-    } 
-    
-    
-    
+    }
+
     public void fillListMapProject() {
         try {
             mapProjects = new ServiceProjectsTO().selectUsingMap();
@@ -151,18 +154,23 @@ public class ProjectTimeManagementController {
     }
 
     public void save() {
+        
+        if (idProject == 0) {
+            return;
+        }
+        
         if (idDetailSelected == 0) {
-            FacesContext.getCurrentInstance().addMessage(null , new FacesMessage(FacesMessage.SEVERITY_ERROR,"Null value", "Please pick a task"));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Null value", "Please pick a task"));
             return;//si no hay algo seleccionado se manda un mensaje de error
         }
 
         if (investedTimeTO.getInvestedITime() <= 0) {
-            FacesContext.getCurrentInstance().addMessage(null , new FacesMessage(FacesMessage.SEVERITY_ERROR,"Null value", "Please pick a time whitch is more than 0"));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Null value", "Please pick a time whitch is more than 0"));
             return;//si no hay un tiempo mayopr o igual a 0 se manda un mensaje de error
         }
 
         try {
-            investedTimeTO.setColaboratorAndProjectId(1);//se escribe un 1  mientras  se crean mas proyectos
+            investedTimeTO.setColaboratorAndProjectId(getProjectHasColaborator());//se escribe un 1  mientras  se crean mas proyectos
             // sale de datos colab_has_project en bd
             investedTimeTO.setTask(idDetailSelected);
             serviceInvestedTime.insert(investedTimeTO);
