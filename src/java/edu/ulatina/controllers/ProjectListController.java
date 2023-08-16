@@ -8,29 +8,20 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import org.primefaces.PrimeFaces;
-import org.primefaces.context.PrimeFacesContext;
 
 /**
  *
  * @author esterojas
  */
 @ManagedBean(name = "ProjectListController")
-@SessionScoped
+@ViewScoped
 public class ProjectListController {
 
     private ProjectsTO projectsTO;
 
     private List<ProjectsTO> listProjectsTO;
 
-    private List<ColaboratorHasProjectTO> listColaboratorHasProjectTO;
-
     private ServiceProjectsTO serviceProjectsTO;
-
-    private Map<String, Integer> mapColaboratos;
-
-    private ColaboratorHasProjectTO colaboratorHasProjectTO;
-    
-    private ProjectsTO slectedPTO;
 
     public ProjectsTO getProjectsTO() {
         return projectsTO;
@@ -54,30 +45,6 @@ public class ProjectListController {
 
     public void setServiceProjectsTO(ServiceProjectsTO serviceProjectsTO) {
         this.serviceProjectsTO = serviceProjectsTO;
-    }
-
-    public List<ColaboratorHasProjectTO> getListColaboratorHasProjectTO() {
-        return listColaboratorHasProjectTO;
-    }
-
-    public void setListColaboratorHasProjectTO(List<ColaboratorHasProjectTO> listColaboratorHasProjectTO) {
-        this.listColaboratorHasProjectTO = listColaboratorHasProjectTO;
-    }
-
-    public Map<String, Integer> getMapColaboratos() {
-        return mapColaboratos;
-    }
-
-    public void setMapColaboratos(Map<String, Integer> mapColaboratos) {
-        this.mapColaboratos = mapColaboratos;
-    }
-
-    public ColaboratorHasProjectTO getColaboratorHasProjectTO() {
-        return colaboratorHasProjectTO;
-    }
-
-    public void setColaboratorHasProjectTO(ColaboratorHasProjectTO colaboratorHasProjectTO) {
-        this.colaboratorHasProjectTO = colaboratorHasProjectTO;
     }
 
     //special get/set metods
@@ -112,41 +79,12 @@ public class ProjectListController {
         return "Dropped";
     }
 
-    public String getNameWithId(ColaboratorHasProjectTO chpto) {
-
-        try {
-            return new ServicePersonalDataTO().selectByColaboratorId(chpto.getId()).getName();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "not found";
-        }
-    }
-
-    public String getStateForColaboratorHasProject(ColaboratorHasProjectTO chpto) {
-        if (chpto.getState() == 1) {
-            return "Active";
-        }
-
-        return "Unactive";
-    }
-
     //metods
     @PostConstruct
     public void initianizate() {
         serviceProjectsTO = new ServiceProjectsTO();
-        colaboratorHasProjectTO = new ColaboratorHasProjectTO();
         projectsTO = new ProjectsTO();
         fillList();
-        fillListMapColaboratos();
-    }
-
-    public void fillListMapColaboratos() {
-        try {
-            mapColaboratos = new ServicePersonalDataTO().selectUsingMap();
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem with the connection unable to get data"));
-            mapColaboratos = new HashMap<>();
-        }
     }
 
     public void fillList() {
@@ -155,19 +93,6 @@ public class ProjectListController {
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem with the connection unable to get data"));
             listProjectsTO = new ArrayList<ProjectsTO>();
-        }
-    }
-
-    public void fillListOfMemebers(ProjectsTO pTO) {
-        
-        slectedPTO = pTO;
-
-        try {
-            listColaboratorHasProjectTO = new ServiceColaboratorHasProjectTO().selectByProjectId(slectedPTO.getId());
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem with the connection unable to get data"));
-            listProjectsTO = new ArrayList<ProjectsTO>();
-            e.printStackTrace();
         }
     }
 
@@ -191,29 +116,6 @@ public class ProjectListController {
             e.printStackTrace();
         }
         fillList();
-    }
-
-    public void saveCoplaboratorHasProject() {
-
-        if (colaboratorHasProjectTO.getIdColaborator() == 0) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "Please pick a colaborator for the project"));
-            return;
-        }
-
-        colaboratorHasProjectTO.setInitialDate(new java.sql.Date(System.currentTimeMillis()));
-        colaboratorHasProjectTO.setState(1);
-        colaboratorHasProjectTO.setIdProject(slectedPTO.getId());
-
-        try {
-            new ServiceColaboratorHasProjectTO().insert(colaboratorHasProjectTO);
-            PrimeFaces.current().executeInitScript("PF('manageProjectsMembersDialog').hide();");
-            colaboratorHasProjectTO = new ColaboratorHasProjectTO();
-
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem with the connection unable to save data"));
-            e.printStackTrace();
-        }
-        fillListOfMemebers(slectedPTO);
     }
 
 }

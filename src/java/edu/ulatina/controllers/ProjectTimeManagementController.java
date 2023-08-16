@@ -113,12 +113,12 @@ public class ProjectTimeManagementController {
     public void save() {
         if (idDetailSelected == 0) {
             FacesContext.getCurrentInstance().addMessage(null , new FacesMessage(FacesMessage.SEVERITY_ERROR,"Null value", "Please pick a task"));
-            return;
+            return;//si no hay algo seleccionado se manda un mensaje de error
         }
 
         if (investedTimeTO.getInvestedITime() <= 0) {
             FacesContext.getCurrentInstance().addMessage(null , new FacesMessage(FacesMessage.SEVERITY_ERROR,"Null value", "Please pick a time whitch is more than 0"));
-            return;
+            return;//si no hay un tiempo mayopr o igual a 0 se manda un mensaje de error
         }
 
         try {
