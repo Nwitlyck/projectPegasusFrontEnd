@@ -150,11 +150,11 @@ public class LoginController implements Serializable {
             return false;
         }
 
-        if (logColaboratorTO.getAcceslevel() == 5) {
+        if (logColaboratorTO.getAcceslevel() == 5 || logColaboratorTO.getAcceslevel() == 6) {
             return true;
         }
 
-        return true;
+        return false;
     }
 
     public boolean isAdmin() {
@@ -162,11 +162,11 @@ public class LoginController implements Serializable {
             return false;
         }
 
-        if (logColaboratorTO.getAcceslevel() != 6) {
-            return false;
+        if (logColaboratorTO.getAcceslevel() == 6) {
+            return true;
         }
 
-        return true;
+        return false;
     }
  
 }

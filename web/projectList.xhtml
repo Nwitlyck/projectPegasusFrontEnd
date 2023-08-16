@@ -29,8 +29,8 @@
 
                     <p:submenu label="Projects" icon="pi pi-fw pi-user">
                         <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
-                        <p:menuitem value="Project List" outcome="projectList" icon="pi pi-fw pi-user"/>
-
+                        <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
                     <f:facet name="options">
@@ -45,12 +45,16 @@
 
         <h:form id="form">
 
+            <p:growl id="messages" showDetail="true"/>
+
+
+
             <p:commandButton value="Add Project" 
                              icon="pi pi-plus" 
                              update=":form:manageProjects" 
                              oncomplete="PF('manageProjectsDialog').show()"
                              styleClass="ui-button-success">
-                             
+
                 <p:resetInput target="form manage-Projects-content"/>
             </p:commandButton>
 
@@ -73,36 +77,30 @@
                 <p:column headerText="Project Name" sortBy="#{projects.name}" filterBy="#{projects.name}" filterMatchMode="contains">
                     <h:outputText value="#{projects.name}" />
                 </p:column>
-                
+
                 <p:column headerText="Initial Date" sortBy="#{projects.initialdate}" filterBy="#{projects.initialdate}" filterMatchMode="contains">
                     <h:outputText value="#{projects.initialdate}" />
                 </p:column>
-                
+
                 <p:column headerText="Final Date" sortBy="#{projects.finaldate}" filterBy="#{projects.finaldate}" filterMatchMode="contains">
                     <h:outputText value="#{projects.finaldate}" />
                 </p:column>
-                <p:column headerText="State" sortBy="#{ProjectListController.getState(projects)}" filterBy="#{ProjectListController.getState(projects)}" filterMatchMode="contains">
-                    <h:outputText value="#{ProjectListController.getState(projects) }" />
+                <p:column headerText="State" sortBy="#{ProjectListController.getStateForProject(projects)}" filterBy="#{ProjectListController.getStateForProject(projects)}" filterMatchMode="contains">
+                    <h:outputText value="#{ProjectListController.getStateForProject(projects)}" />
                 </p:column>
-                
+
 
             </p:dataTable>
 
-
-
             <p:dialog header="Projects Detail" showEffect="fade" modal="true"
-                      widgetVar="manageProjectsDialog" responsive="true" id="manageProjects" closable="false">
+                      widgetVar="manageProjectsDialog" responsive="true" id="manageProjects" closable="false" resizable="false" draggable="false" position="center">
                 <p:outputPanel id="manage-Projects-content" class="ui-fluid">
 
-                    <p:growl id="messages" showDetail="true"/>
-
-
-                    
                     <div class="p-field">
                         <p:outputLabel for="name">Name</p:outputLabel>
                         <p:inputText id="name" value="#{ProjectListController.projectsTO.name}"> </p:inputText>
                     </div>
-                    
+
 
                 </p:outputPanel>
 

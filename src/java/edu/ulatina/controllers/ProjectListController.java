@@ -8,22 +8,20 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import org.primefaces.PrimeFaces;
-import org.primefaces.context.PrimeFacesContext;
-
 
 /**
  *
  * @author esterojas
  */
 @ManagedBean(name = "ProjectListController")
+@ViewScoped
 public class ProjectListController {
 
     private ProjectsTO projectsTO;
 
     private List<ProjectsTO> listProjectsTO;
 
-    private ServiceProjectsTO  serviceProjectsTO;
-
+    private ServiceProjectsTO serviceProjectsTO;
 
     public ProjectsTO getProjectsTO() {
         return projectsTO;
@@ -49,8 +47,7 @@ public class ProjectListController {
         this.serviceProjectsTO = serviceProjectsTO;
     }
 
-    
-    
+    //special get/set metods
     public java.util.Date getCalendarInitialDate() {
         return (java.util.Date) this.projectsTO.getInitialdate();
     }
@@ -60,7 +57,7 @@ public class ProjectListController {
             this.projectsTO.setInitialdate(new java.sql.Date(initialDate.getTime()));
         }
     }
-    
+
     public java.util.Date getCalendarFinallDate() {
         return (java.util.Date) this.projectsTO.getFinaldate();
     }
@@ -70,39 +67,42 @@ public class ProjectListController {
             this.projectsTO.setFinaldate(new java.sql.Date(finalDate.getTime()));
         }
     }
-    
-    public String getState(ProjectsTO pto){
-        if (pto.getState()==1 && pto.getCompleted()==0)
+
+    public String getStateForProject(ProjectsTO pto) {
+        if (pto.getState() == 1 && pto.getCompleted() == 0) {
             return "Active";
-        if (pto.getState()==1 && pto.getCompleted()==1)
+        }
+        if (pto.getState() == 1 && pto.getCompleted() == 1) {
             return "Completed";
-        
+        }
+
         return "Dropped";
-        
-        
     }
-            
-            
-      @PostConstruct
+
+    //metods
+    @PostConstruct
     public void initianizate() {
         serviceProjectsTO = new ServiceProjectsTO();
         projectsTO = new ProjectsTO();
         fillList();
-        
     }
-    
+
     public void fillList() {
         try {
-            listProjectsTO = serviceProjectsTO.select();//se escribe un 1  mientras  se crean mas proyectos
-            // sale de datos colab_has_project en bd
+            listProjectsTO = serviceProjectsTO.select();
         } catch (Exception e) {
-            e.printStackTrace();
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem with the connection unable to save data"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem with the connection unable to get data"));
             listProjectsTO = new ArrayList<ProjectsTO>();
         }
     }
-   
+
     public void save() {
+
+        if (projectsTO.getName().isEmpty() || projectsTO.getName() == null) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "Please write a name for the project"));
+            return;
+        }
+
         projectsTO.setInitialdate(new java.sql.Date(System.currentTimeMillis()));
         projectsTO.setState(1);
 
@@ -111,12 +111,11 @@ public class ProjectListController {
             PrimeFaces.current().executeInitScript("PF('manageProjectsDialog').hide();");
             projectsTO = new ProjectsTO();
 
-
         } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem with the connection unable to save data"));
             e.printStackTrace();
         }
         fillList();
     }
-    
-   
+
 }

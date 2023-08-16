@@ -1,17 +1,13 @@
 package edu.ulatina.controllers;
 
-import edu.ulatina.serviceTO.ServiceNonWorkingDayTO;
-import edu.ulatina.transfereObjects.ColaboratorTO;
-import edu.ulatina.serviceTO.ServiceColaboratorTO;
-import edu.ulatina.serviceTO.ServiceDetailTO;
-import edu.ulatina.transfereObjects.NonWorkingDayTO;
+import edu.ulatina.serviceTO.*;
+import edu.ulatina.transfereObjects.*;
 import java.io.Serializable;
 import java.util.*;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.*;
 import javax.faces.context.*;
 import javax.faces.application.*;
-import org.omg.CORBA.ServiceDetail;
 
 /*
  * @author Nwitlyck
@@ -212,7 +208,7 @@ public class DaysOffController implements Serializable {
 
         FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_INFO, "Done", "Time off requested"));
         fillListNonWorkingDayTO();
-        
+        fillDaysOff();
     }
 
     public void loadRewied() {
@@ -324,6 +320,21 @@ public class DaysOffController implements Serializable {
         } catch (Exception e) {
             return "";
         }
+    }
+    
+    public String getTypeInString(NonWorkingDayTO nonWorkingDayTO){
+        
+        DetailTO detailTO = new DetailTO();
+        detailTO.setId(nonWorkingDayTO.getType());
+        
+        try {
+            
+            return new ServiceDetailTO().selectByPk(detailTO).getName();
+            
+        } catch (Exception e) { 
+            return "not found";
+        }
+        
     }
     
     public String getStateInString(NonWorkingDayTO nonWorkingDayTO){
