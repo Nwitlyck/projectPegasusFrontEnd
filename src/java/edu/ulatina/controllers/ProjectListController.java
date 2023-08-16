@@ -17,6 +17,8 @@ import org.primefaces.PrimeFaces;
 @ViewScoped
 public class ProjectListController {
 
+    private ProjectsTO selectedProjectsTO;
+
     private ProjectsTO projectsTO;
 
     private List<ProjectsTO> listProjectsTO;
@@ -45,6 +47,14 @@ public class ProjectListController {
 
     public void setServiceProjectsTO(ServiceProjectsTO serviceProjectsTO) {
         this.serviceProjectsTO = serviceProjectsTO;
+    }
+
+    public ProjectsTO getSelectedProjectsTO() {
+        return selectedProjectsTO;
+    }
+
+    public void setSelectedProjectsTO(ProjectsTO selectedProjectsTO) {
+        this.selectedProjectsTO = selectedProjectsTO;
     }
 
     //special get/set metods
@@ -114,6 +124,35 @@ public class ProjectListController {
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem with the connection unable to save data"));
             e.printStackTrace();
+        }
+        fillList();
+    }
+   
+    
+    public void completed() {
+       selectedProjectsTO.setState(1);
+       selectedProjectsTO.setCompleted(1);
+       selectedProjectsTO.setFinaldate(new java.sql.Date(System.currentTimeMillis()));
+        
+        try {
+            serviceProjectsTO.update(selectedProjectsTO);
+
+        } catch (Exception e) { 
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
+        }
+        fillList();
+    }
+    
+    public void dropped() {
+       selectedProjectsTO.setState(0);
+       selectedProjectsTO.setCompleted(0);
+       selectedProjectsTO.setFinaldate(new java.sql.Date(System.currentTimeMillis()));
+        
+        try {
+            serviceProjectsTO.update(selectedProjectsTO);
+
+        } catch (Exception e) { 
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
         }
         fillList();
     }
