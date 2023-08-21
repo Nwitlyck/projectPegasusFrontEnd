@@ -143,6 +143,20 @@ public class ProjectListController {
         fillList();
     }
     
+    public void restart() {
+       selectedProjectsTO.setState(1);
+       selectedProjectsTO.setCompleted(0);
+       selectedProjectsTO.setFinaldate(null);
+        
+        try {
+            serviceProjectsTO.update(selectedProjectsTO);
+
+        } catch (Exception e) { 
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
+        }
+        fillList();
+    }
+    
     public void dropped() {
        selectedProjectsTO.setState(0);
        selectedProjectsTO.setCompleted(0);

@@ -146,7 +146,7 @@ public class ProjectTimeManagementController {
 
     public void fillListMapProject() {
         try {
-            mapProjects = new ServiceProjectsTO().selectUsingMap();
+            mapProjects = new ServiceProjectsTO().selectUsingMapByIdColaborator(loginController.logColaborator().getId());
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem with the connection unable to get data"));
             mapProjects = new HashMap<>();

@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui" xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Pegasus</title>
+    </h:head>
+    <h:body>
+        <h:form id="menu">
+
+            <div class="card">
+                <p:menubar>
+                    <p:menuitem value="Main" outcome="Main" icon="pi pi-fw pi-home"/>
+
+                    <p:submenu label="Colaborator" icon="pi pi-fw pi-user">
+
+                        <p:menuitem value="Profile" outcome="Profile" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Manager" outcome="ColaboratorManager" icon="pi pi-fw pi-home" rendered="#{loginController.manager}"/>
+                        <p:menuitem value="Documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
+
+                    </p:submenu>
+
+                    <p:submenu label="Days Off" icon="pi pi-fw pi-user">
+                         <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
+                    </p:submenu>
+
+                    <p:submenu label="Projects" icon="pi pi-fw pi-user">
+                        <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project members List" outcome="projectMemberList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
+                    </p:submenu>
+                    
+                    <p:submenu label="Feedback" icon="pi pi-fw pi-user">
+
+                         <p:menuitem value="Personal" outcome="PersonalMeetings" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project" outcome="ProjectMeeting" icon="pi pi-fw pi-user" />
+                    </p:submenu>
+
+                    <f:facet name="options">
+
+                        <p:commandButton value="Logout" actionListener="#{logOutController.logOut()}" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+
+                    </f:facet>
+                </p:menubar>
+            </div>
+
+        </h:form>
+        
+        <h:form id="form">
+            <p:selectOneMenu id="project" value="#{ProjectMeetingController.projectHasFeedbackTO.projectId}" style="width:150px">
+                <p:ajax listener="#{ProjectMeetingController.fillList}" update="form"/>
+                <f:selectItem itemLabel="Select a project" itemValue="" noSelectionOption="true"/>
+                <f:selectItems value="#{ProjectMeetingController.mapProject}"/>
+            </p:selectOneMenu>
+
+
+            <p:dataTable 
+                var = "projectMeeting" 
+                value="#{ProjectMeetingController.listProjectHasFeedbackTO}" 
+                paginator="true" 
+                paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                paginatorPosition="bottom"
+                rows="5" 
+                rowsPerPageTemplate="5, 10, 20, 30, 40, 50" 
+                emptyMessage="There is no data">
+
+                <f:facet name="header">
+                    List project meetings
+
+                </f:facet>
+
+                <p:column headerText="Author" sortBy="#{ProjectMeetingController.getAuthor(projectMeeting)}" filterBy="#{ProjectMeetingController.getAuthor(projectMeeting)}" filterMatchMode="contains">
+                    <h:outputText value="#{ProjectMeetingController.getAuthor(projectMeeting)}" />
+                </p:column>
+                
+                <p:column headerText="Descripcion" sortBy="#{ProjectMeetingController.getDescription(projectMeeting)}" filterBy="#{ProjectMeetingController.getDescription(projectMeeting)}" filterMatchMode="contains">
+                    <h:outputText value="#{ProjectMeetingController.getDescription(projectMeeting)}" />
+                </p:column>
+                
+                <p:column headerText="Date" sortBy="#{ProjectMeetingController.getDateFeedback(projectMeeting)}" filterBy="#{ProjectMeetingController.getDateFeedback(projectMeeting)}" filterMatchMode="contains">
+                    <h:outputText value="#{ProjectMeetingController.getDateFeedback(projectMeeting)}" />
+                </p:column>
+
+                <p:column headerText="Action Plan" sortBy="#{projectMeeting.actionPlan}" filterBy="#{projectMeeting.actionPlan}" filterMatchMode="contains">
+                    <h:outputText value="#{projectMeeting.actionPlan}" />
+                </p:column>
+                
+                <p:column headerText="Action Plan Status" sortBy="#{ProjectMeetingController.getActionPlan(projectMeeting)}" filterBy="#{ProjectMeetingController.getActionPlan(projectMeeting)}" filterMatchMode="contains">
+                    <h:outputText value="#{ProjectMeetingController.getActionPlan(projectMeeting)}" />
+                </p:column>
+                
+                <p:column rendered="#{loginController.manager}">
+                    
+                    <p:commandButton 
+                        value="Complete" 
+                        class="ui--button-success rounded-button"
+                        icon="pi pi-check" 
+                        oncomplete="PF('completeActionPlanDialog').show()"
+                        styleClass="rounded-button ui-button-success"
+                        style="left:  .90rem"
+                        process="@this">
+                        <f:setPropertyActionListener value="#{projectMeeting}" target="#{ProjectMeetingController.projectHasFeedbackTO}" />
+                    </p:commandButton>
+                </p:column>
+
+            </p:dataTable>
+            
+            <p:confirmDialog  
+                widgetVar="completeActionPlanDialog" 
+                showEffect="fade" 
+                width="300"
+                message="Enable the colaborator?" 
+                header="Confirm" 
+                severity="warn">
+
+                <p:commandButton 
+                    value="Cancel" 
+                    icon="pi pi-times" 
+                    onclick="PF('completeActionPlanDialog').hide()"
+                    style="float: left"
+                    class="ui-button-secondary"/>
+
+                <p:commandButton 
+                    value="Enable" 
+                    icon="pi pi-check" 
+                    actionListener="#{ProjectMeetingController.completeActionPlan}"
+                    update="form" 
+                    process="@this form" />
+
+            </p:confirmDialog>
+            
+        </h:form>
+        
+    </h:body>
+</html>
+

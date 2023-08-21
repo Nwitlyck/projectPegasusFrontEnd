@@ -1,4 +1,5 @@
 package edu.ulatina.controllers;
+
 import javax.faces.bean.*;
 import edu.ulatina.serviceTO.*;
 import edu.ulatina.transfereObjects.*;
@@ -12,18 +13,18 @@ import org.primefaces.PrimeFaces;
  *
  * @author Nwitlyck
  */
-@ManagedBean(name = "ProjectMembersListController") 
+@ManagedBean(name = "ProjectMembersListController")
 @ViewScoped
 public class ProjectMembersListController {
-    
+
     private Map<String, Integer> mapColaboratos;
-    
+
     private Map<String, Integer> mapProjects;
-    
+
     private ColaboratorHasProjectTO colaboratorHasProjectTO;
-    
+
     private List<ColaboratorHasProjectTO> listColaboratorHasProjectTO;
-    
+
     private ServiceColaboratorHasProjectTO serviceColaboratorHasProjectTO;
 
     public Map<String, Integer> getMapColaboratos() {
@@ -65,9 +66,8 @@ public class ProjectMembersListController {
     public void setServiceColaboratorHasProjectTO(ServiceColaboratorHasProjectTO serviceColaboratorHasProjectTO) {
         this.serviceColaboratorHasProjectTO = serviceColaboratorHasProjectTO;
     }
-    
+
     //Special get/set
-    
     public String getNameWithId(ColaboratorHasProjectTO chpto) {
 
         try {
@@ -85,9 +85,8 @@ public class ProjectMembersListController {
 
         return "Unactive";
     }
-    
+
     //metods
-    
     @PostConstruct
     public void initianizate() {
         serviceColaboratorHasProjectTO = new ServiceColaboratorHasProjectTO();
@@ -96,7 +95,7 @@ public class ProjectMembersListController {
         fillListMapColaboratos();
         fillListMapProject();
     }
-    
+
     public void fillListMapProject() {
         try {
             mapProjects = new ServiceProjectsTO().selectUsingMap();
@@ -105,7 +104,7 @@ public class ProjectMembersListController {
             mapProjects = new HashMap<>();
         }
     }
-    
+
     public void fillListMapColaboratos() {
         try {
             mapColaboratos = new ServicePersonalDataTO().selectUsingMap();
@@ -117,10 +116,11 @@ public class ProjectMembersListController {
 
     public void fillList() {
 
-        if(colaboratorHasProjectTO.getIdProject()==0){
+        if (colaboratorHasProjectTO.getIdProject() == 0) {
+            listColaboratorHasProjectTO = new ArrayList<ColaboratorHasProjectTO>();
             return;
         }
-        
+
         try {
             listColaboratorHasProjectTO = new ServiceColaboratorHasProjectTO().selectByProjectId(colaboratorHasProjectTO.getIdProject());
         } catch (Exception e) {
@@ -151,5 +151,38 @@ public class ProjectMembersListController {
         }
         fillList();
     }
-    
+
+    public void enable() {
+        if (colaboratorHasProjectTO.getState() == 1) {
+            return;
+        }
+
+        colaboratorHasProjectTO.setState(1);
+
+        try {
+            serviceColaboratorHasProjectTO.update(colaboratorHasProjectTO);
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
+        }
+        fillList();
+    }
+
+    public void disable() {
+
+        if (colaboratorHasProjectTO.getState() == 0) {
+            return;
+        }
+        colaboratorHasProjectTO.setState(0);
+
+        try {
+            serviceColaboratorHasProjectTO.update(colaboratorHasProjectTO);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
+        }
+        fillList();
+    }
+
 }

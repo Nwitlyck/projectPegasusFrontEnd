@@ -6,6 +6,7 @@
         <title>Pegasus</title>
     </h:head>
     <h:body>
+        
         <h:form id="menu">
 
             <div class="card">
@@ -30,6 +31,7 @@
                     <p:submenu label="Projects" icon="pi pi-fw pi-user">
                         <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project members List" outcome="projectMemberList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
@@ -101,10 +103,20 @@
                         update="form">
                         <f:setPropertyActionListener value="#{projects}" target="#{ProjectListController.selectedProjectsTO}"/>
                     </p:commandButton>
+                    
+                    <p:commandButton   
+                        icon="pi pi-play" 
+                        oncomplete="PF('restartDialog').show()"
+                        styleClass="rounded-button" 
+                        style="left:  .90rem"
+                        process="@this" 
+                        update="form"> 
+                        <f:setPropertyActionListener value="#{projects}" target="#{ProjectListController.selectedProjectsTO}"/> 
+                    </p:commandButton>
 
                     <p:commandButton   
                         class="ui-button-warning rounded-button"
-                        icon="pi pi-times" 
+                        icon="pi pi-trash" 
                         oncomplete="PF('droppedDialog').show()"
                         styleClass="rounded-button ui-button-danger" 
                         style="left:  .90rem;"
@@ -137,6 +149,30 @@
                     value="Aprove" 
                     icon="pi pi-check" 
                     actionListener="#{ProjectListController.completed}"
+                    update="form" 
+                    process="@this" />
+
+            </p:confirmDialog>
+            
+            <p:confirmDialog  
+                widgetVar="restartDialog" 
+                showEffect="fade" 
+                width="300"
+                message="Are you sure?" 
+                header="Confirm" 
+                severity="warn">
+
+                <p:commandButton 
+                    value="Cancel" 
+                    icon="pi pi-times" 
+                    onclick="PF('restartDialog').hide()"
+                    style="float: left"
+                    class="ui-button-secondary"/>
+
+                <p:commandButton 
+                    value="Dropped" 
+                    icon="pi pi-check" 
+                    actionListener="#{ProjectListController.restart}"
                     update="form" 
                     process="@this" />
 
@@ -196,7 +232,7 @@
                         value="Save" 
                         icon="pi pi-check" 
                         actionListener="#{ProjectListController.save}"
-                        update="manage-Projects-content"
+                        update="manage-Projects-content form"
                         process="manage-Projects-content @this" />
 
 
