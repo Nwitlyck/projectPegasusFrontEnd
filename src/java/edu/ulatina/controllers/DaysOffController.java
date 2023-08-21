@@ -3,6 +3,7 @@ package edu.ulatina.controllers;
 import edu.ulatina.serviceTO.*;
 import edu.ulatina.transfereObjects.*;
 import java.io.Serializable;
+import java.time.Period;
 import java.util.*;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.*;
@@ -27,11 +28,10 @@ public class DaysOffController implements Serializable {
     private boolean showRewied;
 
     private NonWorkingDayTO currentNonWorkingDayTO;
-    
-    private Map<String,Integer> map;
-    
+
+    private Map<String, Integer> map;
+
     private List<NonWorkingDayTO> listDaysOff;
-    
 
     @ManagedProperty(value = "#{loginController}")
     private LoginController loginController;
@@ -55,7 +55,6 @@ public class DaysOffController implements Serializable {
     public void setMap(Map<String, Integer> map) {
         this.map = map;
     }
-    
 
     public void setLoginController(LoginController loginController) {
         this.loginController = loginController;
@@ -140,20 +139,20 @@ public class DaysOffController implements Serializable {
         fillDaysOff();
 
     }
-    
-    public void fillDaysOff(){
-         try {
+
+    public void fillDaysOff() {
+        try {
             listDaysOff = serviceNonWorkingDayTO.selectByColaboratorId(loginController.logColaborator().getId());
-            
+
         } catch (Exception e) {
             listDaysOff = new ArrayList<>();
         }
     }
-    
-    public void fillMap(){
+
+    public void fillMap() {
         try {
             map = new ServiceDetailTO().selectByMasterId(2);
-            
+
         } catch (Exception e) {
         }
     }
@@ -191,15 +190,15 @@ public class DaysOffController implements Serializable {
             listNonWorkingDayTO = new ArrayList<NonWorkingDayTO>();
         }
     }
-    
-    public void save(){
-        
+
+    public void save() {
+
         selectedNonWorkingDayTO.setIdColaborator(loginController.logColaborator().getId());
         if (!nullVerification() || !colaboratorExist() || !dateIsFuture()) {
             return;
 
         }
-        
+
         try {
             serviceNonWorkingDayTO.insert(selectedNonWorkingDayTO);
         } catch (Exception e) {
@@ -283,14 +282,51 @@ public class DaysOffController implements Serializable {
         return true;
     }
 
+    public boolean verifyVacationDays() {
+
+        try {
+            Period diff = Period.between(selectedNonWorkingDayTO.getInitialDate().toLocalDate(), selectedNonWorkingDayTO.getFinalDate().toLocalDate());
+
+            int days = diff.getDays() + 1 + diff.getMonths() * 30 + diff.getYears() * 365;
+
+            ColaboratorTO cto = new ColaboratorTO();
+            cto.setId(selectedNonWorkingDayTO.getIdColaborator());
+
+            if (days > new ServiceColaboratorTO().selectByPk(cto).getVacationDays()) {
+                selectedNonWorkingDayTO.setFeedback("You dont have enough vacation days");
+                disapproved();
+                FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_INFO, "Disaprroved", "The colaborator doesnt have enough vacations"));
+                return false;
+            } else {
+                cto = new ServiceColaboratorTO().selectByPk(cto);
+
+                cto.setVacationDays(cto.getVacationDays() - days);
+
+                new ServiceColaboratorTO().update(cto);
+
+            }
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
+        }
+
+        return true;
+    }
+
     public void approved() {
+
+        if (selectedNonWorkingDayTO.getType() == 2) {
+            if (!verifyVacationDays()) {
+                return;
+            }
+        }
         selectedNonWorkingDayTO.setState(1);
         selectedNonWorkingDayTO.setReview(1);
         selectedNonWorkingDayTO.setFeedback("Enjoy!");
         try {
             serviceNonWorkingDayTO.update(selectedNonWorkingDayTO);
 
-        } catch (Exception e) { 
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
         }
         fillListNonWorkingDayTO();
@@ -321,28 +357,28 @@ public class DaysOffController implements Serializable {
             return "";
         }
     }
-    
-    public String getTypeInString(NonWorkingDayTO nonWorkingDayTO){
-        
+
+    public String getTypeInString(NonWorkingDayTO nonWorkingDayTO) {
+
         DetailTO detailTO = new DetailTO();
         detailTO.setId(nonWorkingDayTO.getType());
-        
+
         try {
-            
+
             return new ServiceDetailTO().selectByPk(detailTO).getName();
-            
-        } catch (Exception e) { 
+
+        } catch (Exception e) {
             return "not found";
         }
-        
+
     }
-    
-    public String getStateInString(NonWorkingDayTO nonWorkingDayTO){
-        
-        if(nonWorkingDayTO.getReview()==0){
+
+    public String getStateInString(NonWorkingDayTO nonWorkingDayTO) {
+
+        if (nonWorkingDayTO.getReview() == 0) {
             return "Not Reviewed";
         }
-        if(nonWorkingDayTO.getState()==0){
+        if (nonWorkingDayTO.getState() == 0) {
             return "Denied";
         }
         return "Approved";

@@ -41,7 +41,30 @@ public class ProjectColaboratorController {
     public void setLoginController(LoginController loginController) {
         this.loginController = loginController;
     }
+    //get/set special
+
+    public String getNameForId(ColaboratorHasProjectTO chpto) {
+        
+        ProjectsTO pTO = new ProjectsTO();
+        pTO.setId(chpto.getIdProject());
+        
+        try {
+            return new ServiceProjectsTO().selectByPk(pTO).getName();
+        } catch (Exception e) {
+        }
+
+        return "Not found";
+    }
     
+    public String getStateForColaboratorHasProjectTO(ColaboratorHasProjectTO chpto) {
+        if (chpto.getState()==1) {
+            return "Active";
+        }
+
+        return "Unactive";
+    }
+    
+    //metods
     @PostConstruct
     public void initialize(){
         fillList();

@@ -6,6 +6,7 @@
         <title>Pegasus</title>
     </h:head>
     <h:body>
+        
         <h:form id="menu">
 
             <div class="card">
@@ -30,6 +31,7 @@
                     <p:submenu label="Projects" icon="pi pi-fw pi-user">
                         <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project members List" outcome="projectMemberList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
                     </p:submenu>
 
@@ -42,6 +44,7 @@
             </div>
 
         </h:form>
+        
         <h:form id = "form" >
 
             <p:growl id="info" showDetail="true"/>
@@ -104,6 +107,18 @@
                 <p:column >
                     <p:commandButton 
                         icon="pi pi-pencil" 
+                        actionListener="#{PersonalMeetingsController.openNew}"
+                        update=":form:manage-Feedback-content" 
+                        oncomplete="PF('manageFeedbackDialog').show()"
+                        styleClass="edit-button rounded-button ui-button-success" 
+                        rendered="#{!colaboratorController.enable}"
+                        style="background: red; border: none"
+                        process="@this">
+                        <f:setPropertyActionListener value="#{colaboratorTO.id}" target="#{PersonalMeetingsController.meetingHasColaboratorAndFeedbackTO.colaboratorId}" />
+                        <p:resetInput target=":form:manage-Feedback-content"/>
+                    </p:commandButton>
+                    <p:commandButton 
+                        icon="pi pi-pencil" 
                         actionListener="#{colaboratorController.closeNew}"
                         update=":form:manage-Colaborator-content" 
                         oncomplete="PF('manageColaboratorDialog').show()"
@@ -153,6 +168,37 @@
                 </f:facet>
 
             </p:dataTable>
+            
+            <p:dialog header="Feedback Detail" showEffect="fade" modal="true"
+                      widgetVar="manageFeedbackDialog" responsive="true" id="managerFeedback">
+                <p:outputPanel id="manage-Feedback-content" class="ui-fluid" >
+                    <div class="p-field">
+                        <p:outputLabel for="description">Description</p:outputLabel>
+                        <p:inputText id="description" value="#{PersonalMeetingsController.feedbackTO.feedback}"></p:inputText>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="dateOfFeedBack">Date of Meeting</p:outputLabel>
+                        <p:calendar id="dateOfFeedBack" value="#{PersonalMeetingsController.dateOfFeedBack}"/>
+                    </div>
+                </p:outputPanel>
+                <f:facet name="footer">
+
+                    <p:commandButton 
+                        value="Cancel" 
+                        icon="pi pi-times" 
+                        onclick="PF('manageFeedbackDialog').hide()"
+                        style="float: left"
+                        class="ui-button-secondary"/>
+
+                    <p:commandButton 
+                        value="Save" 
+                        icon="pi pi-check" 
+                        actionListener="#{PersonalMeetingsController.save}"
+                        update="form manage-Feedback-content" 
+                        process="manage-Feedback-content @this" />
+
+                </f:facet>
+            </p:dialog>
 
             <p:dialog header="Colaborator Detail" showEffect="fade" modal="true"
                       widgetVar="manageColaboratorDialog" responsive="true" id="managerColaborator">

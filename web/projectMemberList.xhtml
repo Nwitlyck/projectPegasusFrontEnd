@@ -6,6 +6,7 @@
         <title>Pegasus</title>
     </h:head>
     <h:body>
+        
         <h:form id="menu">
 
             <div class="card">
@@ -22,7 +23,7 @@
 
                     <p:submenu label="Days Off" icon="pi pi-fw pi-user">
 
-                        <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
+                         <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
 
                         <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
                     </p:submenu>
@@ -67,6 +68,7 @@
 
 
                     <p:commandButton icon="pi pi-plus" 
+                                     rendered="#{loginController.admin}"
                                      update=":form:manageProjectsMembers" 
                                      oncomplete="PF('manageProjectsMembersDialog').show()">
                     </p:commandButton>
@@ -88,7 +90,81 @@
                     <h:outputText value="#{ProjectMembersListController.getStateForColaboratorHasProject(colaboratorHasProject)}" />
                 </p:column>
 
+                <p:column 
+                    rendered="#{loginController.admin}">
+
+                    <p:commandButton 
+                        class="ui-button-warning rounded-button"
+                        icon="pi pi-check" 
+                        oncomplete="PF('enableDialog').show()" 
+                        styleClass="rounded-button" 
+                        style="left:  .90rem; background: green"
+                        process="@this" 
+                        update="form">
+                        <f:setPropertyActionListener value="#{colaboratorHasProject}" target="#{ProjectMembersListController.colaboratorHasProjectTO}"/>
+                    </p:commandButton>
+
+                    <p:commandButton   
+                        class="ui-button-warning rounded-button"
+                        icon="pi pi-times" 
+                        oncomplete="PF('disableDialog').show()"
+                        styleClass="rounded-button ui-button-danger" 
+                        style="left:  .90rem;"
+                        process="@this" 
+                        update="form"> 
+                        <f:setPropertyActionListener value="#{colaboratorHasProject}" target="#{ProjectMembersListController.colaboratorHasProjectTO}"/> 
+                    </p:commandButton>
+                </p:column>
+
             </p:dataTable>
+
+            <p:confirmDialog  
+                widgetVar="enableDialog" 
+                showEffect="fade" 
+                width="300"
+                message="Are you sure?" 
+                header="Confirm" 
+                severity="warn">
+
+                <p:commandButton 
+                    value="Cancel" 
+                    icon="pi pi-times" 
+                    onclick="PF('enableDialog').hide()"
+                    style="float: left"
+                    class="ui-button-secondary"/>
+
+                <p:commandButton 
+                    value="Enable" 
+                    icon="pi pi-check" 
+                    actionListener="#{ProjectMembersListController.enable}"
+                    update="form" 
+                    process="@this" />
+
+            </p:confirmDialog>
+
+            <p:confirmDialog  
+                widgetVar="disableDialog" 
+                showEffect="fade" 
+                width="300"
+                message="Are you sure?" 
+                header="Confirm" 
+                severity="warn">
+
+                <p:commandButton 
+                    value="Cancel" 
+                    icon="pi pi-times" 
+                    onclick="PF('disableDialog').hide()"
+                    style="float: left"
+                    class="ui-button-secondary"/>
+
+                <p:commandButton 
+                    value="Disable" 
+                    icon="pi pi-check" 
+                    actionListener="#{ProjectMembersListController.disable}"
+                    update="form" 
+                    process="@this" />
+
+            </p:confirmDialog>
 
             <p:dialog header="Projects Members Detail" showEffect="fade" modal="true"
                       widgetVar="manageProjectsMembersDialog" responsive="true" id="manageProjectsMembers" closable="false" resizable="false" draggable="false" position="center">
@@ -123,7 +199,7 @@
                         icon="pi pi-check" 
                         actionListener="#{ProjectMembersListController.saveCoplaboratorHasProject}"
                         update="form"
-                        process="manage-ProjectsMembers-content @this" />
+                        process="form @this" />
 
 
                 </f:facet>
