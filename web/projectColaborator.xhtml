@@ -6,7 +6,8 @@
         <title>Pegasus</title>
     </h:head>
     <h:body>
-        <h:form id="menu">
+        
+       <h:form id="menu">
 
             <div class="card">
                 <p:menubar>
@@ -21,16 +22,21 @@
                     </p:submenu>
 
                     <p:submenu label="Days Off" icon="pi pi-fw pi-user">
-
                          <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
-
                         <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
                     </p:submenu>
 
                     <p:submenu label="Projects" icon="pi pi-fw pi-user">
                         <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
-                        <p:menuitem value="Project List" outcome="projectList" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project members List" outcome="projectMemberList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
+                    </p:submenu>
+                    
+                    <p:submenu label="Feedback" icon="pi pi-fw pi-user">
+
+                         <p:menuitem value="Personal" outcome="PersonalMeetings" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project" outcome="ProjectMeeting" icon="pi pi-fw pi-user" />
                     </p:submenu>
 
                     <f:facet name="options">
@@ -44,6 +50,9 @@
         </h:form>
         
         <h:form id="form">
+
+            <p:growl id="info" showDetail="true"/>
+            
             <p:dataTable 
                 var = "colaboratorHasProjects" 
                 value="#{ProjectColaboratorController.listColaboratorHasProjects}" 
@@ -58,8 +67,8 @@
                     My Projects
                 </f:facet>
 
-                <p:column headerText="Project ID" sortBy="#{colaboratorHasProjects.idProject}" filterBy="#{colaboratorHasProjects.idProject}" filterMatchMode="contains">
-                    <h:outputText value="#{colaboratorHasProjects.idProject}" />
+                <p:column headerText="Project name" sortBy="#{ProjectColaboratorController.getNameForId(colaboratorHasProjects)}" filterBy="#{ProjectColaboratorController.getNameForId(colaboratorHasProjects)}" filterMatchMode="contains">
+                    <h:outputText value="#{ProjectColaboratorController.getNameForId(colaboratorHasProjects)}" />
                 </p:column>
 
                 <p:column headerText="Total Time" sortBy="#{colaboratorHasProjects.totalTime}" filterBy="#{colaboratorHasProjects.totalTime}" filterMatchMode="contains">
@@ -74,11 +83,60 @@
                     <h:outputText value="#{colaboratorHasProjects.finalDate}" />
                 </p:column>
                 
-                <p:column headerText="State" sortBy="#{colaboratorHasProjects.state}" filterBy="#{colaboratorHasProjects.state}" filterMatchMode="contains">
-                    <h:outputText value="#{colaboratorHasProjects.state}" />
+                <p:column headerText="State" sortBy="#{ProjectColaboratorController.getStateForColaboratorHasProjectTO(colaboratorHasProjects)}" filterBy="#{ProjectColaboratorController.getStateForColaboratorHasProjectTO(colaboratorHasProjects)}" filterMatchMode="contains">
+                    <h:outputText value="#{ProjectColaboratorController.getStateForColaboratorHasProjectTO(colaboratorHasProjects)}" />
+                </p:column>
+                
+                <p:column rendered="#{loginController.manager}">
+                    <p:commandButton 
+                        icon="pi pi-pencil" 
+                        actionListener="#{ProjectMeetingController.openNew}"
+                        update=":form:manage-Feedback-content" 
+                        oncomplete="PF('manageFeedbackDialog').show()"
+                        styleClass="edit-button rounded-button ui-button-success"
+                        style="background: red; border: none"
+                        process="@this">
+                        <f:setPropertyActionListener value="#{colaboratorHasProjects.idProject}" target="#{ProjectMeetingController.projectHasFeedbackTO.projectId}" />
+                        <p:resetInput target=":form:manage-Feedback-content"/>
+                    </p:commandButton>
                 </p:column>
                 
             </p:dataTable>
+            
+            <p:dialog header="Feedback Detail" showEffect="fade" modal="true"
+                      widgetVar="manageFeedbackDialog" responsive="true" id="managerFeedback">
+                <p:outputPanel id="manage-Feedback-content" class="ui-fluid" >
+                    <div class="p-field">
+                        <p:outputLabel for="description">Description</p:outputLabel>
+                        <p:inputText id="description" value="#{ProjectMeetingController.feedbackTO.feedback}"></p:inputText>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="dateOfFeedBack">Date of Meeting</p:outputLabel>
+                        <p:calendar id="dateOfFeedBack" value="#{ProjectMeetingController.dateOfFeedBack}"/>
+                    </div>
+                    <div class="p-field">
+                        <p:outputLabel for="actionplan">Action Plan</p:outputLabel>
+                        <p:inputText id="actionplan" value="#{ProjectMeetingController.projectHasFeedbackTO.actionPlan}"></p:inputText>
+                    </div>
+                </p:outputPanel>
+                <f:facet name="footer">
+
+                    <p:commandButton 
+                        value="Cancel" 
+                        icon="pi pi-times" 
+                        onclick="PF('manageFeedbackDialog').hide()"
+                        style="float: left"
+                        class="ui-button-secondary"/>
+
+                    <p:commandButton 
+                        value="Save" 
+                        icon="pi pi-check" 
+                        actionListener="#{ProjectMeetingController.save}"
+                        update="form manage-Feedback-content" 
+                        process="manage-Feedback-content @this" />
+
+                </f:facet>
+            </p:dialog>
         </h:form>
     </h:body>
 </html>

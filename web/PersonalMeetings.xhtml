@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui" xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Pegasus</title>
+    </h:head>
+    <h:body>
+        <h:form id="menu">
+
+            <div class="card">
+                <p:menubar>
+                    <p:menuitem value="Main" outcome="Main" icon="pi pi-fw pi-home"/>
+
+                    <p:submenu label="Colaborator" icon="pi pi-fw pi-user">
+
+                        <p:menuitem value="Profile" outcome="Profile" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Manager" outcome="ColaboratorManager" icon="pi pi-fw pi-home" rendered="#{loginController.manager}"/>
+                        <p:menuitem value="Documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
+
+                    </p:submenu>
+
+                    <p:submenu label="Days Off" icon="pi pi-fw pi-user">
+                         <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
+                    </p:submenu>
+
+                    <p:submenu label="Projects" icon="pi pi-fw pi-user">
+                        <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project members List" outcome="projectMemberList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
+                    </p:submenu>
+                    
+                    <p:submenu label="Feedback" icon="pi pi-fw pi-user">
+
+                         <p:menuitem value="Personal" outcome="PersonalMeetings" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project" outcome="ProjectMeeting" icon="pi pi-fw pi-user" />
+                    </p:submenu>
+
+                    <f:facet name="options">
+
+                        <p:commandButton value="Logout" actionListener="#{logOutController.logOut()}" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+
+                    </f:facet>
+                </p:menubar>
+            </div>
+
+        </h:form>
+        
+        <h:form id="form">
+            
+            <p:commandButton 
+                value="Show gave feedback" 
+                actionListener="#{PersonalMeetingsController.trueFlag}" 
+                update="form" 
+                rendered="#{loginController.manager and !PersonalMeetingsController.flag}"/>
+            <p:commandButton 
+                value="Show resive feedback" 
+                actionListener="#{PersonalMeetingsController.falseFlag}" 
+                update="form" 
+                rendered="#{loginController.manager and PersonalMeetingsController.flag}"/>
+
+
+            <p:dataTable 
+                var = "meetingHasColaboratorAndFeedbackTO" 
+                value="#{PersonalMeetingsController.listMeetingHasColaboratorAndFeedbackTO}" 
+                paginator="true" 
+                paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                paginatorPosition="bottom"
+                rows="5" 
+                rowsPerPageTemplate="5, 10, 20, 30, 40, 50" 
+                emptyMessage="There is no data">
+
+                <f:facet name="header">
+                    List personal meetings
+
+                </f:facet>
+                
+                <p:column headerText="Colaborator" sortBy="#{PersonalMeetingsController.getColaborator(meetingHasColaboratorAndFeedbackTO)}" filterBy="#{PersonalMeetingsController.getColaborator(meetingHasColaboratorAndFeedbackTO)}" filterMatchMode="contains" rendered="#{PersonalMeetingsController.flag}">
+                    <h:outputText value="#{PersonalMeetingsController.getColaborator(meetingHasColaboratorAndFeedbackTO)}" />
+                </p:column>
+
+                <p:column headerText="Author" sortBy="#{PersonalMeetingsController.getAuthor(meetingHasColaboratorAndFeedbackTO)}" filterBy="#{PersonalMeetingsController.getAuthor(meetingHasColaboratorAndFeedbackTO)}" filterMatchMode="contains" rendered="#{!PersonalMeetingsController.flag}">
+                    <h:outputText value="#{PersonalMeetingsController.getAuthor(meetingHasColaboratorAndFeedbackTO)}" />
+                </p:column>
+                
+                <p:column headerText="Descripcion" sortBy="#{PersonalMeetingsController.getDescription(meetingHasColaboratorAndFeedbackTO)}" filterBy="#{PersonalMeetingsController.getDescription(meetingHasColaboratorAndFeedbackTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{PersonalMeetingsController.getDescription(meetingHasColaboratorAndFeedbackTO)}" />
+                </p:column>
+                
+                <p:column headerText="Date" sortBy="#{PersonalMeetingsController.getDateFeedback(meetingHasColaboratorAndFeedbackTO)}" filterBy="#{PersonalMeetingsController.getDateFeedback(meetingHasColaboratorAndFeedbackTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{PersonalMeetingsController.getDateFeedback(meetingHasColaboratorAndFeedbackTO)}" />
+                </p:column>
+
+            </p:dataTable>
+        </h:form>
+    </h:body>
+</html>
+

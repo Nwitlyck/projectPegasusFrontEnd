@@ -6,6 +6,7 @@
         <title>Pegasus</title>
     </h:head>
     <h:body>
+        
         <h:form id="menu">
 
             <div class="card">
@@ -21,14 +22,21 @@
                     </p:submenu>
 
                     <p:submenu label="Days Off" icon="pi pi-fw pi-user">
-
                          <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
-
                         <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
                     </p:submenu>
 
                     <p:submenu label="Projects" icon="pi pi-fw pi-user">
                         <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project members List" outcome="projectMemberList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
+                    </p:submenu>
+                    
+                    <p:submenu label="Feedback" icon="pi pi-fw pi-user">
+
+                         <p:menuitem value="Personal" outcome="PersonalMeetings" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project" outcome="ProjectMeeting" icon="pi pi-fw pi-user" />
                     </p:submenu>
 
                     <f:facet name="options">
@@ -66,11 +74,11 @@
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="initialDate">Initial Date</p:outputLabel>
-                        <p:calendar id="initialDate" value="#{daysOffController.calendarInitialDate}" />
+                        <p:calendar id="initialDate" value="#{daysOffController.calendarInitialDate}"/>
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="finalDate">Final Date</p:outputLabel>
-                        <p:calendar id="finalDate" value="#{daysOffController.calendarFinalDate}"  />
+                        <p:calendar id="finalDate" value="#{daysOffController.calendarFinalDate}"/>
                     </div>
 
                 </p:outputPanel>
@@ -97,7 +105,7 @@
                         icon="pi pi-check" 
                         rendered="#{daysOffController.newNonWorkingDay}"
                         actionListener="#{daysOffController.save}"
-                        update="form manage-Vacations-content" 
+                        update="manage-Vacations-content, form" 
                         process="manage-Vacations-content @this" />
 
                 </f:facet>
@@ -116,9 +124,8 @@
                 <f:facet name="header">
                     Days Off list
                 </f:facet>
-
-                <p:column headerText="Type" sortBy="#{NonWorkingDayTO.type}" filterBy="#{NonWorkingDayTO.type}" filterMatchMode="contains">
-                    <h:outputText value="#{NonWorkingDayTO.type}" />
+                <p:column headerText="Type" sortBy="#{daysOffController.getTypeInString(NonWorkingDayTO)}" filterBy="#{daysOffController.getTypeInString(NonWorkingDayTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{daysOffController.getTypeInString(NonWorkingDayTO)}" />
                 </p:column>
 
                 <p:column headerText="Initial Date" sortBy="#{NonWorkingDayTO.initialDate}" filterBy="#{NonWorkingDayTO.initialDate}" filterMatchMode="contains">
@@ -130,6 +137,10 @@
                 </p:column>
                 
                 <p:column visible="#{daysOffController.showRewied}"  headerText="Feedback" sortBy="#{NonWorkingDayTO.feedback}" filterBy="#{NonWorkingDayTO.feedback}" filterMatchMode="contains">
+                    <h:outputText value="#{NonWorkingDayTO.feedback}" />
+                </p:column>
+                
+                <p:column headerText="Feedback" sortBy="#{NonWorkingDayTO.feedback}" filterBy="#{NonWorkingDayTO.feedback}" filterMatchMode="contains">
                     <h:outputText value="#{NonWorkingDayTO.feedback}" />
                 </p:column>
                 
