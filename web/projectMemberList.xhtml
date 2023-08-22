@@ -22,9 +22,7 @@
                     </p:submenu>
 
                     <p:submenu label="Days Off" icon="pi pi-fw pi-user">
-
                          <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
-
                         <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
                     </p:submenu>
 
@@ -33,6 +31,12 @@
                         <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="Project members List" outcome="projectMemberList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
+                    </p:submenu>
+                    
+                    <p:submenu label="Feedback" icon="pi pi-fw pi-user">
+
+                         <p:menuitem value="Personal" outcome="PersonalMeetings" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Project" outcome="ProjectMeeting" icon="pi pi-fw pi-user" />
                     </p:submenu>
 
                     <f:facet name="options">
