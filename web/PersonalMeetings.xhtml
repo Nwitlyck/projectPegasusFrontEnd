@@ -33,7 +33,7 @@
                 <p:menubar>
                     <p:menuitem value="Home" outcome="Main" icon="pi pi-fw pi-home"/>
 
-                     <p:submenu label="Collaborator" icon="pi pi-fw pi-users">
+                      <p:submenu label="Collaborator" icon="pi pi-fw pi-users">
 
                         <p:menuitem value="Profile" outcome="Profile" icon="pi pi-fw pi-user"/>
                         <p:menuitem value="Manage Collaborators" outcome="ColaboratorManager" icon="pi pi-fw pi-sitemap" rendered="#{loginController.manager}"/>
@@ -70,26 +70,22 @@
         </h:form>
         
         <h:form id="form">
-
-            <p:commandButton value="Add task" 
-                             icon="pi pi-plus" 
-                             update=":form:manage-Task-content" 
-                             oncomplete="PF('manageTaskDialog').show()"
-                             styleClass="ui-button-success">
-                <p:resetInput target="form manage-Task-content"/>
-            </p:commandButton>
             
-            
-            <p:selectOneMenu id="project" value="#{ProjectTimeManagementController.idProject}" style="width:150px">
-                <p:ajax listener="#{ProjectTimeManagementController.fillList()}" update="form"/>
-                <f:selectItem itemLabel="Select a project" itemValue="" noSelectionOption="true"/>
-                <f:selectItems value="#{ProjectTimeManagementController.mapProjects}"/>
-            </p:selectOneMenu>
+            <p:commandButton 
+                value="Show given feedback" 
+                actionListener="#{PersonalMeetingsController.trueFlag}" 
+                update="form" 
+                rendered="#{loginController.manager and !PersonalMeetingsController.flag}"/>
+            <p:commandButton 
+                value="Show received feedback" 
+                actionListener="#{PersonalMeetingsController.falseFlag}" 
+                update="form" 
+                rendered="#{loginController.manager and PersonalMeetingsController.flag}"/>
 
 
             <p:dataTable 
-                var = "investedTime" 
-                value="#{ProjectTimeManagementController.listInvestedTimeTO}" 
+                var = "meetingHasColaboratorAndFeedbackTO" 
+                value="#{PersonalMeetingsController.listMeetingHasColaboratorAndFeedbackTO}" 
                 paginator="true" 
                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
                 paginatorPosition="bottom"
@@ -98,68 +94,27 @@
                 emptyMessage="There is no data">
 
                 <f:facet name="header">
-                    Tasks
+                    Personal Meetings
 
                 </f:facet>
-
-                <p:column headerText="Task" sortBy="#{ProjectTimeManagementController.nameByAcessLevel(investedTime.task)}" filterBy="#{ProjectTimeManagementController.nameByAcessLevel(investedTime.task)}" filterMatchMode="contains">
-                    <h:outputText value="#{ProjectTimeManagementController.nameByAcessLevel(investedTime.task)}" />
+                
+                <p:column headerText="Colaborator" sortBy="#{PersonalMeetingsController.getColaborator(meetingHasColaboratorAndFeedbackTO)}" filterBy="#{PersonalMeetingsController.getColaborator(meetingHasColaboratorAndFeedbackTO)}" filterMatchMode="contains" rendered="#{PersonalMeetingsController.flag}">
+                    <h:outputText value="#{PersonalMeetingsController.getColaborator(meetingHasColaboratorAndFeedbackTO)}" />
                 </p:column>
 
-                <p:column headerText="Time in Hours" sortBy="#{investedTime.investedITime}" filterBy="#{investedTime.investedITime}" filterMatchMode="contains">
-                    <h:outputText value="#{investedTime.investedITime}" />
+                <p:column headerText="Author" sortBy="#{PersonalMeetingsController.getAuthor(meetingHasColaboratorAndFeedbackTO)}" filterBy="#{PersonalMeetingsController.getAuthor(meetingHasColaboratorAndFeedbackTO)}" filterMatchMode="contains" rendered="#{!PersonalMeetingsController.flag}">
+                    <h:outputText value="#{PersonalMeetingsController.getAuthor(meetingHasColaboratorAndFeedbackTO)}" />
+                </p:column>
+                
+                <p:column headerText="Descripcion" sortBy="#{PersonalMeetingsController.getDescription(meetingHasColaboratorAndFeedbackTO)}" filterBy="#{PersonalMeetingsController.getDescription(meetingHasColaboratorAndFeedbackTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{PersonalMeetingsController.getDescription(meetingHasColaboratorAndFeedbackTO)}" />
+                </p:column>
+                
+                <p:column headerText="Date" sortBy="#{PersonalMeetingsController.getDateFeedback(meetingHasColaboratorAndFeedbackTO)}" filterBy="#{PersonalMeetingsController.getDateFeedback(meetingHasColaboratorAndFeedbackTO)}" filterMatchMode="contains">
+                    <h:outputText value="#{PersonalMeetingsController.getDateFeedback(meetingHasColaboratorAndFeedbackTO)}" />
                 </p:column>
 
             </p:dataTable>
-
-
-
-            <p:dialog header="Task Detail" showEffect="fade" modal="true"
-                      widgetVar="manageTaskDialog" responsive="true" id="managerTask" closable="false">
-                <p:outputPanel id="manage-Task-content" class="ui-fluid">
-
-                    <p:growl id="messages" showDetail="true"/>
-
-
-                    <div class="p-field">
-                        <p:outputLabel for="task">Task</p:outputLabel>
-                        <p:selectOneMenu id="task" value="#{ProjectTimeManagementController.idDetailSelected}">
-                            <f:selectItem itemLabel="Select task" itemValue="" noSelectionOption="true"/>
-                            <f:selectItems value="#{ProjectTimeManagementController.mapTask}"/>
-                        </p:selectOneMenu>
-                    </div>
-                    <div class="p-field">
-                        <p:outputLabel for="hours">Hours</p:outputLabel>
-                        <p:inputText id="hours" value="#{ProjectTimeManagementController.investedTimeTO.investedITime}"><p:keyFilter mask="num" /></p:inputText>
-                    </div>
-
-                </p:outputPanel>
-
-
-
-                <f:facet name="footer">
-
-                    <p:commandButton 
-                        value="Cancel" 
-                        icon="pi pi-times" 
-                        onclick="PF('manageTaskDialog').hide()"
-                        style="float: left"
-                        class="ui-button-secondary"/>
-
-
-
-
-                    <p:commandButton 
-                        value="Save" 
-                        icon="pi pi-check" 
-                        actionListener="#{ProjectTimeManagementController.save}"
-                        update="manage-Task-content, form"
-                        process="manage-Task-content @this" />
-
-
-                </f:facet>
-            </p:dialog>
-
         </h:form>
     </h:body>
 </html>
