@@ -158,6 +158,7 @@ public class ProjectMembersListController {
         }
 
         colaboratorHasProjectTO.setState(1);
+        colaboratorHasProjectTO.setFinalDate(null);
 
         try {
             serviceColaboratorHasProjectTO.update(colaboratorHasProjectTO);
@@ -174,6 +175,7 @@ public class ProjectMembersListController {
             return;
         }
         colaboratorHasProjectTO.setState(0);
+        colaboratorHasProjectTO.setFinalDate(new java.sql.Date(System.currentTimeMillis()));
 
         try {
             serviceColaboratorHasProjectTO.update(colaboratorHasProjectTO);
@@ -183,6 +185,14 @@ public class ProjectMembersListController {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
         }
         fillList();
+    }
+    
+    public boolean boolOfState(ColaboratorHasProjectTO chpto) {
+        if (chpto.getState() == 1) {
+            return true;
+        }
+
+        return false;
     }
 
 }

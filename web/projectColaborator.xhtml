@@ -112,10 +112,11 @@
                         id="feedback"
                         icon="pi pi-comments" 
                         actionListener="#{ProjectMeetingController.openNew}"
-                        update=":form:manage-Feedback-content" 
                         oncomplete="PF('manageFeedbackDialog').show()"
                         styleClass="edit-button rounded-button ui-button-success"
                         style="background: lightsalmon; border: none"
+                        rendered="#{ProjectColaboratorController.canBeDisplay(colaboratorHasProjects)}"
+                        update="form" 
                         process="@this">
                          <p:tooltip for="feedback" value="Feedback" showEffect="" hideEffect=""/>
                         <f:setPropertyActionListener value="#{colaboratorHasProjects.idProject}" target="#{ProjectMeetingController.projectHasFeedbackTO.projectId}" />

@@ -127,48 +127,61 @@ public class ProjectListController {
         }
         fillList();
     }
-   
-    
+
     public void completed() {
-       selectedProjectsTO.setState(1);
-       selectedProjectsTO.setCompleted(1);
-       selectedProjectsTO.setFinaldate(new java.sql.Date(System.currentTimeMillis()));
-        
+        selectedProjectsTO.setState(1);
+        selectedProjectsTO.setCompleted(1);
+        selectedProjectsTO.setFinaldate(new java.sql.Date(System.currentTimeMillis()));
+
         try {
             serviceProjectsTO.update(selectedProjectsTO);
 
-        } catch (Exception e) { 
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
         }
         fillList();
     }
-    
+
     public void restart() {
-       selectedProjectsTO.setState(1);
-       selectedProjectsTO.setCompleted(0);
-       selectedProjectsTO.setFinaldate(null);
-        
+        selectedProjectsTO.setState(1);
+        selectedProjectsTO.setCompleted(0);
+        selectedProjectsTO.setFinaldate(null);
+
         try {
             serviceProjectsTO.update(selectedProjectsTO);
 
-        } catch (Exception e) { 
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
         }
         fillList();
     }
-    
+
     public void dropped() {
-       selectedProjectsTO.setState(0);
-       selectedProjectsTO.setCompleted(0);
-       selectedProjectsTO.setFinaldate(new java.sql.Date(System.currentTimeMillis()));
-        
+        selectedProjectsTO.setState(0);
+        selectedProjectsTO.setCompleted(0);
+        selectedProjectsTO.setFinaldate(new java.sql.Date(System.currentTimeMillis()));
+
         try {
             serviceProjectsTO.update(selectedProjectsTO);
 
-        } catch (Exception e) { 
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "The request could not be approved"));
         }
         fillList();
+    }
+
+    public boolean booleanOfCompleted(ProjectsTO pto) {
+        if (pto.getState() == 1 && pto.getCompleted() == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean booleanOfState(ProjectsTO pto) {
+        if (pto.getState() == 1 && pto.getCompleted() == 0) {
+            return true;
+        }
+        return false;
     }
 
 }
