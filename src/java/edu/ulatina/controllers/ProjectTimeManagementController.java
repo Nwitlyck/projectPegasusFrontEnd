@@ -4,6 +4,8 @@ import javax.faces.bean.*;
 import edu.ulatina.serviceTO.*;
 import edu.ulatina.transfereObjects.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -98,15 +100,19 @@ public class ProjectTimeManagementController {
     public void setListInvestedTimeTO(List<InvestedTimeTO> listInvestedTimeTO) {
         this.listInvestedTimeTO = listInvestedTimeTO;
     }
-    
-    public int getProjectHasColaborator() throws Exception {
+
+    public int getProjectHasColaborator() {
         ColaboratorHasProjectTO colaboratorHasProjectTO = new ColaboratorHasProjectTO();
         colaboratorHasProjectTO.setIdProject(idProject);
         colaboratorHasProjectTO.setIdColaborator(loginController.logColaborator().getId());
-        int idProjectHasColaborator = new ServiceColaboratorHasProjectTO().selectByPk(colaboratorHasProjectTO).getId();
-        return idProjectHasColaborator;
-    }
 
+        try {
+            return new ServiceColaboratorHasProjectTO().selectByPk(colaboratorHasProjectTO).getId();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 
     @PostConstruct
     public void initianizate() {
@@ -123,7 +129,7 @@ public class ProjectTimeManagementController {
         }
 
         try {
-            listInvestedTimeTO = serviceInvestedTime.selectById(getProjectHasColaborator() );//se llava auna funcion que obtiene el id colaborator has project
+            listInvestedTimeTO = serviceInvestedTime.selectById(getProjectHasColaborator());//se llava auna funcion que obtiene el id colaborator has project
             // sale de datos colab_has_project en bd           
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,11 +160,11 @@ public class ProjectTimeManagementController {
     }
 
     public void save() {
-        
+
         if (idProject == 0) {
             return;
         }
-        
+
         if (idDetailSelected == 0) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Null value", "Please pick a task"));
             return;//si no hay algo seleccionado se manda un mensaje de error

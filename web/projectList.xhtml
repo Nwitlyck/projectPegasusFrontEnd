@@ -125,8 +125,9 @@
                         styleClass="rounded-button" 
                         style="left:  .90rem; background: green"
                         process="@this" 
+                        rendered="#{ProjectListController.booleanOfCompleted(projects)}"
                         update="form">
-                        <p:tooltip for="ready" value="Ready" showEffect="clip" hideEffect="fold"/>
+                        <p:tooltip for="ready" value="Complete" showEffect="clip" hideEffect="fold"/>
                         <f:setPropertyActionListener value="#{projects}" target="#{ProjectListController.selectedProjectsTO}"/>
                     </p:commandButton>
                     
@@ -137,6 +138,7 @@
                         styleClass="rounded-button" 
                         style="left:  .90rem"
                         process="@this" 
+                        rendered="#{!ProjectListController.booleanOfCompleted(projects) and !ProjectListController.booleanOfState(projects)}"
                         update="form"> 
                         <p:tooltip for="reactivate" value="Reactivate" showEffect="clip" hideEffect="fold"/>
                         <f:setPropertyActionListener value="#{projects}" target="#{ProjectListController.selectedProjectsTO}"/> 
@@ -150,6 +152,7 @@
                         styleClass="rounded-button ui-button-danger" 
                         style="left:  .90rem;"
                         process="@this" 
+                        rendered="#{ProjectListController.booleanOfState(projects)}"
                         update="form"> 
                         <p:tooltip for="deactivate" value="Deactivate" showEffect="clip" hideEffect="fold"/>
                         <f:setPropertyActionListener value="#{projects}" target="#{ProjectListController.selectedProjectsTO}"/> 
