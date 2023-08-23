@@ -239,8 +239,8 @@
                         <p:inputText id="email" value="#{colaboratorController.selectedColaboratorTO.email}"></p:inputText>
                     </div>
                     <div class="p-field">                                               
-                        <p:outputLabel for="access" rendered="#{loginController.admin}">Access Level</p:outputLabel>
-                        <p:selectOneMenu id="access" value=" #{colaboratorController.selectedAcessLevel}" rendered="#{loginController.admin}">
+                        <p:outputLabel for="accessLevel" rendered="#{loginController.admin}">Access Level</p:outputLabel>
+                        <p:selectOneMenu id="accessLevel" value="#{colaboratorController.selectedAcessLevel}" rendered="#{loginController.admin}">
                             <f:selectItem itemLabel="Select access level" itemValue="" noSelectionOption="true"/>
                             <f:selectItems value="#{colaboratorController.mapAcesslevel}"/>
                         </p:selectOneMenu>

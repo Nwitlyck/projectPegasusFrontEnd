@@ -225,16 +225,28 @@ public class ProjectMeetingController {
     }
 
     public void completeActionPlan() {
-        
+
+        if (projectHasFeedbackTO.getActionPlanDone() == 1) {
+            return;
+        }
+
         projectHasFeedbackTO.setActionPlanDone(1);
-        
+
         try {
             serviceProjectHasFeedbackTO.update(projectHasFeedbackTO);
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Action plan completed"));
         } catch (Exception e) {
+            e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was an error"));
         }
         fillList();
+    }
+
+    public boolean canBeDone(ProjectHasFeedbackTO phfto) {
+        if (phfto.getActionPlanDone() == 1) {
+            return false;
+        }
+        return true;
     }
 
 }

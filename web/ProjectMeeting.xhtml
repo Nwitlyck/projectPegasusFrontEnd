@@ -118,11 +118,13 @@
                         id="done"
                         class="ui--button-success rounded-button"
                         icon="pi pi-check" 
+                        rendered="#{ProjectMeetingController.canBeDone(projectMeeting)}"
                         oncomplete="PF('completeActionPlanDialog').show()"
                         styleClass="rounded-button ui-button-success"
                         style="left:  .90rem"
+                        update="form"
                         process="@this">
-                         <p:tooltip for="done" value="Done" showEffect="" hideEffect=""/>
+                        <p:tooltip for="done" value="Done"/>
                         <f:setPropertyActionListener value="#{projectMeeting}" target="#{ProjectMeetingController.projectHasFeedbackTO}" />
                     </p:commandButton>
                 </p:column>

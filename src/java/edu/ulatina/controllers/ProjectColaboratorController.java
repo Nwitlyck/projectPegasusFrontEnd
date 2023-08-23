@@ -7,22 +7,23 @@ package edu.ulatina.controllers;
 
 import java.util.List;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
 import edu.ulatina.transfereObjects.*;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedProperty;
 import edu.ulatina.serviceTO.*;
 import java.util.ArrayList;
+import javax.faces.bean.ViewScoped;
+
 /**
  *
  * @author Usuario
  */
 @ManagedBean(name = "ProjectColaboratorController")
-@SessionScoped
+@ViewScoped
 public class ProjectColaboratorController {
-    
+
     private List<ColaboratorHasProjectTO> listColaboratorHasProjects;
-    
+
     @ManagedProperty(value = "#{loginController}")
     private LoginController loginController;
 
@@ -44,10 +45,10 @@ public class ProjectColaboratorController {
     //get/set special
 
     public String getNameForId(ColaboratorHasProjectTO chpto) {
-        
+
         ProjectsTO pTO = new ProjectsTO();
         pTO.setId(chpto.getIdProject());
-        
+
         try {
             return new ServiceProjectsTO().selectByPk(pTO).getName();
         } catch (Exception e) {
@@ -55,28 +56,39 @@ public class ProjectColaboratorController {
 
         return "Not found";
     }
-    
+
     public String getStateForColaboratorHasProjectTO(ColaboratorHasProjectTO chpto) {
-        if (chpto.getState()==1) {
+        if (chpto.getState() == 1) {
             return "Active";
         }
 
         return "Unactive";
     }
-    
+
     //metods
     @PostConstruct
-    public void initialize(){
+    public void initialize() {
         fillList();
     }
-    
-    public void fillList(){
+
+    public void fillList() {
         try {
             listColaboratorHasProjects = new ServiceColaboratorHasProjectTO().selectByColaboratorId(loginController.getLogColaboratorTO().getId());
         } catch (Exception e) {
             listColaboratorHasProjects = new ArrayList<>();
         }
     }
-    
-    
+
+    public boolean canBeDisplay(ColaboratorHasProjectTO chpto) {
+
+        if (chpto == null) {
+            return false;
+        }
+
+        if (chpto.getState()== 1) {
+            return true;
+        }
+
+        return false;
+    }
 }
