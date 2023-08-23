@@ -5,38 +5,58 @@
     <h:head>
         <title>Pegasus</title>
     </h:head>
-    <h:body>
+   <style>
         
-       <h:form id="menu">
+        .card {
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 20px;
+                margin: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+    .profile-info {
+                display: grid;
+                grid-template-columns: 150px 1fr;
+                grid-gap: 10px;
+            }
+            
+    .profile-label {
+                font-weight: bold;
+            }
+            
+    </style>
+            
+    <h:body>
+        <h:form id="menu">
 
-            <div class="card">
+           <div class="card">
                 <p:menubar>
-                    <p:menuitem value="Main" outcome="Main" icon="pi pi-fw pi-home"/>
+                    <p:menuitem value="Home" outcome="Main" icon="pi pi-fw pi-home"/>
 
-                    <p:submenu label="Colaborator" icon="pi pi-fw pi-user">
+                      <p:submenu label="Collaborator" icon="pi pi-fw pi-users">
 
                         <p:menuitem value="Profile" outcome="Profile" icon="pi pi-fw pi-user"/>
-                        <p:menuitem value="Manager" outcome="ColaboratorManager" icon="pi pi-fw pi-home" rendered="#{loginController.manager}"/>
-                        <p:menuitem value="Documents" outcome="manageDocuments" icon="pi pi-fw pi-user"/>
+                        <p:menuitem value="Manage Collaborators" outcome="ColaboratorManager" icon="pi pi-fw pi-sitemap" rendered="#{loginController.manager}"/>
+                        <p:menuitem value="Documents" outcome="manageDocuments" icon="pi pi-fw pi-file-o"/>
 
                     </p:submenu>
 
-                    <p:submenu label="Days Off" icon="pi pi-fw pi-user">
-                         <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-user"/>
-                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-user" rendered="#{loginController.manager}"/>
+                    <p:submenu label="Days Off" icon="pi pi-fw pi-calendar">
+                         <p:menuitem value="Request Days Off" outcome="DaysOff" icon="pi pi-fw pi-calendar-plus"/>
+                        <p:menuitem value="Review days off" outcome="ReviewDaysOff" icon="pi pi-fw pi-exclamation-triangle" rendered="#{loginController.manager}"/>
                     </p:submenu>
 
-                    <p:submenu label="Projects" icon="pi pi-fw pi-user">
-                        <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-user"/>
-                        <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
-                        <p:menuitem value="Project members List" outcome="projectMemberList" rendered="#{loginController.manager}" icon="pi pi-fw pi-user"/>
-                        <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-user"/>
+                    <p:submenu label="Projects" icon="pi pi-fw pi-chart-line">
+                        <p:menuitem value="Time Management" outcome="projectTImeManagement" icon="pi pi-fw pi-clock"/>
+                        <p:menuitem value="Project List" outcome="projectList" rendered="#{loginController.manager}" icon="pi pi-fw pi-list"/>
+                        <p:menuitem value="Project Members" outcome="projectMemberList" rendered="#{loginController.manager}" icon="pi pi-fw pi-users"/>
+                        <p:menuitem value="My projects" outcome="projectColaborator" icon="pi pi-fw pi-book"/>
                     </p:submenu>
                     
-                    <p:submenu label="Feedback" icon="pi pi-fw pi-user">
+                    <p:submenu label="Feedback" icon="pi pi-fw pi-comments">
 
-                         <p:menuitem value="Personal" outcome="PersonalMeetings" icon="pi pi-fw pi-user"/>
-                        <p:menuitem value="Project" outcome="ProjectMeeting" icon="pi pi-fw pi-user" />
+                         <p:menuitem value="Personal" outcome="PersonalMeetings" icon="pi pi-fw pi-inbox"/>
+                        <p:menuitem value="Project" outcome="ProjectMeeting" icon="pi pi-fw pi-briefcase" />
                     </p:submenu>
 
                     <f:facet name="options">
@@ -89,13 +109,15 @@
                 
                 <p:column rendered="#{loginController.manager}">
                     <p:commandButton 
-                        icon="pi pi-pencil" 
+                        id="feedback"
+                        icon="pi pi-comments" 
                         actionListener="#{ProjectMeetingController.openNew}"
                         update=":form:manage-Feedback-content" 
                         oncomplete="PF('manageFeedbackDialog').show()"
                         styleClass="edit-button rounded-button ui-button-success"
-                        style="background: red; border: none"
+                        style="background: lightsalmon; border: none"
                         process="@this">
+                         <p:tooltip for="feedback" value="Feedback" showEffect="" hideEffect=""/>
                         <f:setPropertyActionListener value="#{colaboratorHasProjects.idProject}" target="#{ProjectMeetingController.projectHasFeedbackTO.projectId}" />
                         <p:resetInput target=":form:manage-Feedback-content"/>
                     </p:commandButton>
