@@ -88,8 +88,8 @@
                     
                     
 
-                    <p:commandButton value="Show Disable" actionListener="#{colaboratorController.showDisable}" update="form" rendered="#{loginController.admin and !colaboratorController.enable}"/>
-                    <p:commandButton value="Show Enable" actionListener="#{colaboratorController.showEnable}" update="form" rendered="#{loginController.admin and colaboratorController.enable}"/>
+                    <p:commandButton value="Show Disabled" actionListener="#{colaboratorController.showDisable}" update="form" rendered="#{loginController.admin and !colaboratorController.enable}"/>
+                    <p:commandButton value="Show Enabled" actionListener="#{colaboratorController.showEnable}" update="form" rendered="#{loginController.admin and colaboratorController.enable}"/>
 
 
 
@@ -118,10 +118,6 @@
 
                 <p:column headerText="Hire Date" sortBy="#{colaboratorTO.hireDate}" filterBy="#{colaboratorTO.hireDate}" filterMatchMode="contains">
                     <h:outputText value="#{colaboratorTO.hireDate}" />
-                </p:column>
-
-                <p:column headerText="Password" sortBy="#{colaboratorTO.password}" filterBy="#{colaboratorTO.password}" filterMatchMode="contains">
-                    <h:outputText value="#{colaboratorTO.password}" />
                 </p:column>
 
                 <p:column headerText="Vacation Days" sortBy="#{colaboratorTO.vacationDays}" filterBy="#{colaboratorTO.vacationDays}" filterMatchMode="contains">
@@ -251,7 +247,7 @@
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="password">Password</p:outputLabel>
-                        <p:inputText id="password" value="#{colaboratorController.selectedColaboratorTO.password}" />
+                        <p:password id="password" value="#{colaboratorController.selectedColaboratorTO.password}" redisplay="true" maxlength="60"/>
                     </div>
                     <div class="p-field">
                         <p:outputLabel for="name"> Name</p:outputLabel>

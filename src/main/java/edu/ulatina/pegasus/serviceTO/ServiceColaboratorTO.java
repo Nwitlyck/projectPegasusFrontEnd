@@ -1,5 +1,6 @@
 package edu.ulatina.pegasus.serviceTO;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import edu.ulatina.pegasus.interfaces.ICrud;
 import edu.ulatina.pegasus.transfereObjects.ColaboratorTO;
 import java.sql.*;
@@ -22,7 +23,7 @@ public class ServiceColaboratorTO extends Service implements ICrud<ColaboratorTO
         ps.setInt(3, objectTO.getAcceslevel());
         ps.setDate(4, objectTO.getHireDate());
         ps.setDate(5, objectTO.getFireDate());
-        ps.setString(6, objectTO.getPassword());
+        ps.setString(6, BCrypt.withDefaults().hashToString(6, objectTO.getPassword().toCharArray()));
         ps.setInt(7, objectTO.getVacationDays());
         ps.setInt(8, objectTO.getState());
         ps.executeUpdate();
@@ -35,7 +36,12 @@ public class ServiceColaboratorTO extends Service implements ICrud<ColaboratorTO
     public void update(ColaboratorTO objectTO) throws Exception {
         
         PreparedStatement ps = null;
-        
+
+        //placeholder method, need to verify if the password is equal to the one stored in db, and if not, hash it.
+        if (!objectTO.getPassword().isEmpty() && objectTO.getPassword().charAt(0) != '$') {
+            objectTO.setPassword(BCrypt.withDefaults().hashToString(6, objectTO.getPassword().toCharArray()));
+        }
+
         ps = getConnection().prepareStatement("UPDATE colaborators SET manager_id = ?, email = ?, access_level = ?, hire_date = ?, fire_date = ? , password = ?, vacationdays = ?, state = ? WHERE (id = ?)");
         ps.setInt(1, objectTO.getManagerId());
         ps.setString(2, objectTO.getEmail());
@@ -227,5 +233,36 @@ public class ServiceColaboratorTO extends Service implements ICrud<ColaboratorTO
         
         return objectTOList;
     }
-    
+
+    public int checkAccess (String email) throws Exception {
+
+        int result;
+        CallableStatement cs;
+        cs = getConnection().prepareCall("{CALL CheckFailedAccess(?, ?)}");
+
+        cs.setString(1, email);
+        cs.registerOutParameter(2, Types.INTEGER);
+
+        cs.execute();
+
+        result = cs.getInt(2);
+
+        close(cs);
+        close(conn);
+
+        return result;
+    }
+
+    public void InsertAccessControlRecord(String email, boolean accessResult) throws Exception {
+        CallableStatement cs;
+        cs = getConnection().prepareCall("{CALL InsertAccessControlRecord(?, ?)}");
+
+        cs.setString(1, email);
+        cs.setBoolean(2, accessResult);
+
+        cs.execute();
+
+        close(cs);
+        close(conn);
+    }
 }

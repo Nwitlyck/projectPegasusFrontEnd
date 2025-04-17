@@ -244,7 +244,7 @@ public class ColaboratorController implements Serializable {
             selectedColaboratorTO.setManagerId(logColaborator.getId());
         }
 
-        if (verifyNull() || !IsAValidEmail() || !IsEmailNew() || selectedColaboratorDateIsFuture()) {
+        if (verifyNull() || !IsAValidEmail() || !IsEmailNew() || !isValidPassword() || selectedColaboratorDateIsFuture()) {
             
             return;
         }
@@ -256,14 +256,14 @@ public class ColaboratorController implements Serializable {
             servicePersonalDataTO.insert(this.selectedPersonalData);
         } catch (Exception e) {
             e.printStackTrace();
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Warning", "There was a problem with the connection unable to add colaborator data"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Warning", "There was a problem with the connection, unable to add colaborator data"));
         }
         initianizate();
     }
 
     public void updateColaboratorTO() {
 
-        if (verifyNull() || !IsAValidEmail() || !IsEmailNew() || selectedColaboratorDateIsFuture()) {
+        if (verifyNull() || !IsAValidEmail() || !IsEmailNew() || !isValidPassword() || selectedColaboratorDateIsFuture()) {
             return;
         }
 
@@ -271,7 +271,7 @@ public class ColaboratorController implements Serializable {
             serviceColaboratorTO.update(selectedColaboratorTO);
             servicePersonalDataTO.update(selectedPersonalData);
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to update calaborator data"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection, unable to update calaborator data"));
         }
         initianizate();
     }
@@ -283,7 +283,7 @@ public class ColaboratorController implements Serializable {
             serviceColaboratorTO.update(selectedColaboratorTO);
             servicePersonalDataTO.update(selectedPersonalData);
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to desable calaborator data"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection, unable to disable calaborator data"));
         }
         initianizate();
     }
@@ -295,7 +295,7 @@ public class ColaboratorController implements Serializable {
             serviceColaboratorTO.update(selectedColaboratorTO);
             servicePersonalDataTO.update(selectedPersonalData);
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to desable calaborator data"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection, unable to disable calaborator data"));
         }
         initianizate();
     }
@@ -306,7 +306,7 @@ public class ColaboratorController implements Serializable {
             serviceColaboratorTO.delete(selectedColaboratorTO);
         } catch (Exception e) {
             e.printStackTrace();
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection unable to delete calaborator data"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "There was a problem with the connection, unable to delete calaborator data"));
         }
         initianizate();
     }
@@ -338,19 +338,19 @@ public class ColaboratorController implements Serializable {
             return true;
         }
         if (selectedColaboratorTO.getEmail().isEmpty() || selectedColaboratorTO.getEmail() == null) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator email is not fill"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator email is not filled"));
             return true;
         }
         if (selectedColaboratorTO.getAcceslevel() == 0) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator acesslevel is not on range"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator acesslevel is not in range"));
             return true;
         }
         if (selectedColaboratorTO.getHireDate() == null) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator hire date is not fill"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator hire date is not filled"));
             return true;
         }
         if (selectedColaboratorTO.getPassword().isEmpty() || selectedColaboratorTO.getPassword() == null) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator password is not fill"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator password is not filled"));
             return true;
         }
         if (selectedPersonalData.getName().isEmpty() || selectedPersonalData.getName() == null) {
@@ -359,15 +359,27 @@ public class ColaboratorController implements Serializable {
         }
 
         if (selectedPersonalData.getBirthdate() == null) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator birthdate is not fill"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator birthdate is not filled"));
             return true;
         }
         if (selectedPersonalData.getEmergencycontact() <= 10000000 || selectedPersonalData.getEmergencycontact() > 1000000000) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator emergency contact is not on range"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Null value", "The Colaborator emergency contact is not in range"));
             return true;
         }
 
         return false;
+    }
+
+    public boolean isValidPassword() {
+        if(selectedColaboratorTO.getPassword().length() < 8 ){
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Invalid", "The password must be at least 8 characters long)"));
+            return false;
+        }
+        if(!selectedColaboratorTO.getPassword().matches("^(?=.*[a-zA-Z])(?=.*\\d).+$")) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Invalid", "The password must be alfanumeric. (At least 1 number and 1 letter)"));
+            return false;
+        }
+        return true;
     }
 
     public boolean IsAValidEmail() {
@@ -387,7 +399,7 @@ public class ColaboratorController implements Serializable {
 
         try {
             if (serviceColaboratorTO.selectByEmail(selectedColaboratorTO.getEmail()) != null && serviceColaboratorTO.selectByEmail(selectedColaboratorTO.getEmail()).getId() != selectedColaboratorTO.getId()) {
-                FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Invalid", "The email is repeded"));
+                FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Invalid", "The email already exists"));
                 return false;
             }
         } catch (Exception e) {
@@ -399,7 +411,7 @@ public class ColaboratorController implements Serializable {
     public boolean selectedColaboratorDateIsFuture() {
 
         if (selectedColaboratorTO.getHireDate().after(new Date(System.currentTimeMillis()))) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Invalid", "The Colaborator hire date in the future!"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_WARN, "Invalid", "The Colaborator hire date is in the future!"));
             return true;
         }
 

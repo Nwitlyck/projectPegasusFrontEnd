@@ -1,5 +1,6 @@
 package edu.ulatina.pegasus.controllers;
 
+import at.favre.lib.crypto.bcrypt.*;
 import edu.ulatina.pegasus.serviceTO.ServiceColaboratorTO;
 import edu.ulatina.pegasus.serviceTO.ServicePersonalDataTO;
 import edu.ulatina.pegasus.transfereObjects.ColaboratorTO;
@@ -61,49 +62,78 @@ public class LoginController implements Serializable {
     public void setLogPersonalDataTO(PersonalDataTO logPersonalDataTO) {
         this.logPersonalDataTO = logPersonalDataTO;
     }
-    
+
+    private final int ACCESS_STATUS_DENIED = 1;
+
+    private final int ACCESS_STATUS_APPROVED = 0;
+
     public void logIn() {
-        if (verifyNulls()) {
-            return;
-        }
 
-        if (!verifyUser()) {
-            return;
-        }
+        if (!verifyNulls()) {
+            boolean logInResult = true;
 
+            if (!verifyAccess()) {
+                return;
+            }
+            if (!verifyUser()) {
+                logInResult = false;
+            }
+            try {
+                new ServiceColaboratorTO().InsertAccessControlRecord(this.email, logInResult);
+                if (logInResult) {
+                    this.logColaboratorTO = new ServiceColaboratorTO().selectByEmail(this.email);
+                    this.logPersonalDataTO = new ServicePersonalDataTO().selectByColaboratorId(this.logColaboratorTO.getId());
+                    this.email = "";
+                    this.password = "";
+
+                    this.redirect("/faces/Main.xhtml");
+                }
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean verifyAccess() {
+        ColaboratorTO colaboratorTO = null;
+        int access = 0;
         try {
-            this.logColaboratorTO = new ServiceColaboratorTO().selectByEmail(this.email);
-            this.logPersonalDataTO = new ServicePersonalDataTO().selectByColaboratorId(this.logColaboratorTO.getId()) ;
-            this.email = "";
-            this.password = "";
+            access = new ServiceColaboratorTO().checkAccess(this.email);
 
         } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "Error connecting with data base"));
             e.printStackTrace();
-        }
 
-        this.redirect("/faces/Main.xhtml");
+        }
+        if (access == ACCESS_STATUS_APPROVED) {
+            return true;
+
+        } else if (access == ACCESS_STATUS_DENIED) {
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "Too many bad attempts"));
+        }
+        return false;
     }
 
     public boolean verifyNulls() {
         if (this.email.isEmpty() || this.email == null) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The email is empity"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The email is empty"));
             return true;
         }
         
         if (this.password.isEmpty() || this.password == null) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The password is empity"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The password is empty"));
             return true;
         }
         return false;
     }
 
     public boolean verifyUser() {
-        ColaboratorTO colaboratorTO;
+        ColaboratorTO colaboratorTO = null;
         try {
             colaboratorTO = new ServiceColaboratorTO().selectByEmail(this.email);
 
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "Error at the time to connect with data base"));
+            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "Error connecting with data base"));
             e.printStackTrace();
             return false;
         }
@@ -111,14 +141,17 @@ public class LoginController implements Serializable {
         if (colaboratorTO == null) {
             FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The email or password are incorrect"));
             return false;
-        }
 
-        if (!colaboratorTO.getPassword().equals(this.password)) {
-            FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The email or password are incorrect"));
-            return false;
-        }
+        } else {
+            BCrypt.Result result = BCrypt.verifyer().verify(this.password.toCharArray(), colaboratorTO.getPassword());
+            if (result.verified){
+                return true;
 
-        return true;
+            } else {
+                FacesContext.getCurrentInstance().addMessage("sticky-key", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "The email or password are incorrect"));
+                return false;
+            }
+        }
     }
 
     public void redirect(String ruta) {

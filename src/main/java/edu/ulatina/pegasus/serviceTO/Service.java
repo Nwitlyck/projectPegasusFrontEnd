@@ -16,7 +16,7 @@ public abstract class Service {
 
         Class.forName("com.mysql.cj.jdbc.Driver");
 
-        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projectpegasus?useSSL=false&serverTimezone=UTC", "root", "1234");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projectpegasus?useSSL=false&serverTimezone=UTC", "root", "admin");
 
         return conn;
     }
